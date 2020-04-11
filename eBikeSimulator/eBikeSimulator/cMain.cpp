@@ -5,7 +5,6 @@
 //Rona Kosumi 
 //test123
 
-=======
 //Ionut Rotariu
 
 cMain::cMain() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(800,600))
