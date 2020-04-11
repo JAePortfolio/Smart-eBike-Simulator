@@ -1,7 +1,7 @@
 #include "cMain.h"
 //Shamim Babul
 // Think of cMain as the GUI. Structure and Event Handlers
-
+//Ionut Rotariu
 
 cMain::cMain() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(800,600))
 {
