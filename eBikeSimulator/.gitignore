@@ -355,3 +355,9 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+#Object files generated
+/eBikeSimulator/*.o
+# The executable file
+/eBikeSimulator/eBikeExec
+#.DS_STORE FOLDER
+.DS_Store
