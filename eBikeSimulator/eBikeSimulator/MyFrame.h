@@ -11,14 +11,14 @@
 
 #include "wx/wx.h"
 
-class cMain : public wxFrame
+class MyFrame : public wxFrame
 {
-public:
-	cMain();
-	~cMain();
-
-public:
+public:							// Function declarations
+	MyFrame();
+	~MyFrame();
+public:							// Variable declarations? Objects?
 	wxButton *m_btn1 = nullptr;
 	wxTextCtrl *m_txt1 = nullptr;
+
 };
 

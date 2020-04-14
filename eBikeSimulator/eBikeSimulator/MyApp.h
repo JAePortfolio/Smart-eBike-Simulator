@@ -9,16 +9,16 @@
 #pragma once
 
 #include "wx/wx.h"
-#include "cMain.h"
+#include "MyFrame.h"
 
-class eBikeSimulator : public wxApp
+class MyApp : public wxApp
 {
 public:
-	eBikeSimulator();
-	~eBikeSimulator();
+	MyApp();
+	~MyApp();
 
 private:
-	cMain* m_frame1 = nullptr;
+	MyFrame* m_frame1 = nullptr;
 
 public:
 	virtual bool OnInit();

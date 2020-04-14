@@ -19,12 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cMain.h" />
-    <ClInclude Include="eBikeSimulator.h" />
+    <ClInclude Include="MyFrame.h" />
+    <ClInclude Include="MyApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cMain.cpp" />
-    <ClCompile Include="eBikeSimulator.cpp" />
+    <ClCompile Include="MyFrame.cpp" />
+    <ClCompile Include="MyApp.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
