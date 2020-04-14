@@ -26,6 +26,14 @@
     <ClCompile Include="MyFrame.cpp" />
     <ClCompile Include="MyApp.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\bike_sideView.PNG">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+    </Image>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{01A5D5D1-AE33-4981-931E-3D56AAD1CAA7}</ProjectGuid>

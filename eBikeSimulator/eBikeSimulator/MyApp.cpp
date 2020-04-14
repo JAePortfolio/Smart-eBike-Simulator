@@ -27,8 +27,5 @@ bool MyApp::OnInit() {
 
 	m_frame1 = new MyFrame();
 	m_frame1->Show();
-
-
-
 	return true;
 }
