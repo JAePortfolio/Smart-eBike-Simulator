@@ -20,5 +20,6 @@ public:							// Variable declarations? Objects?
 	wxButton *m_btn1 = nullptr;
 	wxTextCtrl *m_txt1 = nullptr;
 
+	wxBitmap Bitmap;
 };
 

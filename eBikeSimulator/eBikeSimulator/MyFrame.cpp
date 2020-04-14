@@ -25,10 +25,9 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	else
 		wxLogWarning(wxT("Can't find image files in either '.' or '..'!"));
 
-	wxInitAllImageHandlers;
 	wxPNGHandler *handler = new wxPNGHandler;
 	wxStaticBitmap *image;
-	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap("../bike_sideView.png", wxBITMAP_TYPE_PNG), wxPoint(50,100), wxSize(500,500));
+	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../bike_sideView.png"), wxBITMAP_TYPE_PNG), wxPoint(50,100), wxSize(500,500));
 }
 
 
