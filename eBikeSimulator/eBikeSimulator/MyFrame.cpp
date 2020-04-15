@@ -27,7 +27,7 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 
 	wxPNGHandler *handler = new wxPNGHandler;
 	wxStaticBitmap *image;
-	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../bike_sideView.png"), wxBITMAP_TYPE_PNG), wxPoint(50,100), wxSize(500,500));
+	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../bike_sideView.png"), wxBITMAP_TYPE_PNG), wxPoint(341,191), wxSize(682,383)); // "../ means parent directory, where the SLN file is
 }
 
 
