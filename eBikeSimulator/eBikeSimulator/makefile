@@ -17,7 +17,7 @@ CC = g++
 
 PROGRAM = eBikeExec
 
-OBJECTS = cMain.o eBikeSimulator.o
+OBJECTS = MyApp.o MyFrame.o
 # implementation
 
 .SUFFIXES:	.o .cpp
