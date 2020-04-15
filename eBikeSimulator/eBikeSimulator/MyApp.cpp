@@ -23,8 +23,8 @@ MyApp::~MyApp() // Destructor - Class name::Function
 }
 
 bool MyApp::OnInit() {
-	wxInitAllImageHandlers;
-
+	//wxInitAllImageHandlers;
+	wxImage::AddHandler(new wxPNGHandler);
 	m_frame1 = new MyFrame();
 	m_frame1->Show();
 	return true;
