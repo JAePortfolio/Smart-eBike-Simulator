@@ -34,5 +34,11 @@
     <Image Include="images\bike_sideView.PNG">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="images\blueprint.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\blueprint_headLight.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

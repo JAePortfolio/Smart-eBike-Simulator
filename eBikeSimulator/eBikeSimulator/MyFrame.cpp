@@ -14,18 +14,21 @@
 #include <chrono>
 #include <thread>
 
+
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	//EVT_KEY_DOWN(turnLeftEvent)
 wxEND_EVENT_TABLE()
 
-wxStaticBitmap *image, *bike_rearViewImage;
+wxStaticBitmap *image, *bike_rearViewImage, *frontWheel;
+wxStaticText *textForControls;
+bool headlightOn = false;
 
 MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(1366,768))
 {
 	wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1364, 766), wxWANTS_CHARS);
 	panel->SetBackgroundColour(wxColour(*wxWHITE));
 	panel->Connect(wxEVT_CHAR, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
-	
+	SetFont(wxFont(18, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	/*wxString dir;
 	if (wxFile::Exists(wxT("./bike_sideView.png")))
 		dir = wxT("./");
@@ -35,9 +38,12 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 		wxLogWarning(wxT("Can't find image files in either '.' or '..'!"));
 	*/
 
-	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_sideView.png"), wxBITMAP_TYPE_PNG), wxPoint(341,191), wxSize(682,383)); // "../ means parent directory, where the SLN file is
+	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 574), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls = new wxStaticText(this, wxID_ANY, "L-Signal Left", wxPoint(1065, 605), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls = new wxStaticText(this, wxID_ANY, "R-Signal Right", wxPoint(1065, 635), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 665), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341,191), wxSize(682,383)); // "../ means parent directory, where the SLN file is
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
-
 
 }
 
@@ -49,6 +55,10 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 	}
 	else if (key == 114) { // ASCII code of r
 		rightTurnSignal();
+	}
+
+	else if (key == 104) { // ASCII code of h
+		headlightActivation();
 	}
 }
 
@@ -80,6 +90,19 @@ void MyFrame::rightTurnSignal() {
 	}
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 	Update();
+}
+
+void MyFrame::headlightActivation() {
+	if (headlightOn == false) {
+		headlightOn = !headlightOn;
+		image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint_headlight.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means parent directory, where the SLN file is
+		Update();
+	}
+	else if (headlightOn == true) {
+		headlightOn = !headlightOn;
+		image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means parent directory, where the SLN file is
+		Update();
+	}
 }
 
 MyFrame::~MyFrame()

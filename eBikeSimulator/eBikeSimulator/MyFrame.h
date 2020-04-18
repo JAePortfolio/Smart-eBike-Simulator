@@ -22,9 +22,13 @@ public:							// Global variables, other function delcarations, etc
 	wxTextCtrl *m_txt1 = nullptr;
 
 	wxStaticBitmap *image, *bike_rearViewImage;
+	wxStaticText *textForControls;
+	bool headlightOn;
 	void OnKeyDown(wxKeyEvent& event);
+	wxDECLARE_EVENT_TABLE();
 	void leftTurnSignal();
 	void rightTurnSignal();
-	wxDECLARE_EVENT_TABLE();
+	void headlightActivation();
+
 };
 
