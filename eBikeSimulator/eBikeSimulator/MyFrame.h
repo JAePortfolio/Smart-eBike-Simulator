@@ -10,16 +10,21 @@
 
 
 #include "wx/wx.h"
+#include <chrono>
 
 class MyFrame : public wxFrame
 {
-public:							// Function declarations
+public:							// Frame declaration
 	MyFrame();
 	~MyFrame();
-public:							// Variable declarations? Objects?
+public:							// Global variables, other function delcarations, etc
 	wxButton *m_btn1 = nullptr;
 	wxTextCtrl *m_txt1 = nullptr;
 
-	wxBitmap Bitmap;
+	wxStaticBitmap *image, *bike_rearViewImage;
+	void OnKeyDown(wxKeyEvent& event);
+	void leftTurnSignal();
+	void rightTurnSignal();
+	wxDECLARE_EVENT_TABLE();
 };
 
