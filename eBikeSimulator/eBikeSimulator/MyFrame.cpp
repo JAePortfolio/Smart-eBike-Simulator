@@ -25,6 +25,7 @@ bool headlightOn = false;
 
 MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(1366,768))
 {
+    brakeLevel = 0;
 	wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1364, 766), wxWANTS_CHARS);
 	panel->SetBackgroundColour(wxColour(*wxWHITE));
 	panel->Connect(wxEVT_CHAR, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
@@ -44,13 +45,15 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 665), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341,191), wxSize(682,383)); // "../ means parent directory, where the SLN file is
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
+    brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 
 }
 
 void MyFrame::OnKeyDown(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
 	if (key == 108) { // ASCII code of l (lowercase L)
-		//wxLogMessage(wxT("L has been pressed")); //-You can use this to test if your key code is correct
+
+                      //wxLogMessage(wxT("L has been pressed")); //-You can use this to test if your key code is correct
 		leftTurnSignal();
 	}
 	else if (key == 114) { // ASCII code of r
@@ -60,6 +63,14 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 	else if (key == 104) { // ASCII code of h
 		headlightActivation();
 	}
+    else if (key == 122) // Z for increasing brake level
+    {
+        controlBrake(0, brakeLevel + 15);
+    }
+    else if (key == 120) //X for decreasing brake level 
+    {
+        controlBrake(0, brakeLevel - 15);
+    }
 }
 
 void MyFrame::leftTurnSignal() {
@@ -103,6 +114,55 @@ void MyFrame::headlightActivation() {
 		image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means parent directory, where the SLN file is
 		Update();
 	}
+}
+
+void MyFrame::controlBrake(int _throttle, int _brake)
+{
+    if (brakeLevel < _brake)
+    {
+        if (brakeLevel > 100)
+        {
+            SetBrakePicture(true);
+            return;
+        }
+        brakeLevel = _brake;
+    }
+    else
+    {
+        if (brakeLevel < 0)
+        {
+            SetBrakePicture(false);
+            return;
+        }
+        brakeLevel = _brake;
+    }
+
+    
+    if (brakeLevel > 0)
+    {
+        SetBrakePicture(true);
+    }
+    else
+    {
+        SetBrakePicture(false);
+    }
+}
+
+void MyFrame::SetBrakePicture(bool _bstatus)
+{
+    //Update UI
+    if (_bstatus)
+    {
+        //brakeGif = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon1.gif"), wxBITMAP_TYPE_GIF), wxPoint(1065, 50), wxSize(255, 287));
+        brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
+        Update();
+    }
+    else
+    {
+        brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_brake.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
+        Update();
+    }
+   
 }
 
 MyFrame::~MyFrame()

@@ -8,7 +8,6 @@
 
 #pragma once
 
-
 #include "wx/wx.h"
 #include <chrono>
 
@@ -20,8 +19,10 @@ public:							// Frame declaration
 public:							// Global variables, other function delcarations, etc
 	wxButton *m_btn1 = nullptr;
 	wxTextCtrl *m_txt1 = nullptr;
+    //Define names of break pictures ON and OFF
+    int brakeLevel = 0;
 
-	wxStaticBitmap *image, *bike_rearViewImage;
+	wxStaticBitmap *image, *bike_rearViewImage, *brakePicture, *brakeGif;
 	wxStaticText *textForControls;
 	bool headlightOn;
 	void OnKeyDown(wxKeyEvent& event);
@@ -29,6 +30,7 @@ public:							// Global variables, other function delcarations, etc
 	void leftTurnSignal();
 	void rightTurnSignal();
 	void headlightActivation();
-
+    void controlBrake(int _throttle, int _break);
+    void SetBrakePicture(bool);
 };
 
