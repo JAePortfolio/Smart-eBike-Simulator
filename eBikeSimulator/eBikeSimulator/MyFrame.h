@@ -20,8 +20,6 @@ public:							// Global variables, other function delcarations, etc
 	wxButton *m_btn1 = nullptr;
 	wxTextCtrl *m_txt1 = nullptr;
     //Define names of break pictures ON and OFF
-    int brakeLevel = 0;
-
 	wxStaticBitmap *image, *bike_rearViewImage, *brakePicture, *brakeGif;
 	wxStaticText *textForControls;
 	bool headlightOn;
@@ -32,5 +30,6 @@ public:							// Global variables, other function delcarations, etc
 	void headlightActivation();
     void controlBrake(int _throttle, int _break);
     void SetBrakePicture(bool);
+private:     int brakeLevel;
 };
 

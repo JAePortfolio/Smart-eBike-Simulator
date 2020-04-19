@@ -22,10 +22,11 @@ wxEND_EVENT_TABLE()
 wxStaticBitmap *image, *bike_rearViewImage, *frontWheel;
 wxStaticText *textForControls;
 bool headlightOn = false;
+int brk_lvl = 0;
 
 MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(1366,768))
 {
-    brakeLevel = 0;
+    brk_lvl = 0;
 	wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1364, 766), wxWANTS_CHARS);
 	panel->SetBackgroundColour(wxColour(*wxWHITE));
 	panel->Connect(wxEVT_CHAR, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
@@ -39,10 +40,12 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 		wxLogWarning(wxT("Can't find image files in either '.' or '..'!"));
 	*/
 
-	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 574), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls = new wxStaticText(this, wxID_ANY, "L-Signal Left", wxPoint(1065, 605), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls = new wxStaticText(this, wxID_ANY, "R-Signal Right", wxPoint(1065, 635), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 665), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 550), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls = new wxStaticText(this, wxID_ANY, "L-Signal Left", wxPoint(1065, 580), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls = new wxStaticText(this, wxID_ANY, "R-Signal Right", wxPoint(1065, 610), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 640), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+    textForControls = new wxStaticText(this, wxID_ANY, "Z-BrakeIncr + 15%", wxPoint(1065, 670), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+    textForControls = new wxStaticText(this, wxID_ANY, "X-BrakeDecr - 15%", wxPoint(1065, 700), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341,191), wxSize(682,383)); // "../ means parent directory, where the SLN file is
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
     brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
@@ -65,11 +68,11 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 	}
     else if (key == 122) // Z for increasing brake level
     {
-        controlBrake(0, brakeLevel + 15);
+        controlBrake(0, brk_lvl + 15);
     }
     else if (key == 120) //X for decreasing brake level 
     {
-        controlBrake(0, brakeLevel - 15);
+        controlBrake(0, brk_lvl - 15);
     }
 }
 
@@ -117,28 +120,27 @@ void MyFrame::headlightActivation() {
 }
 
 void MyFrame::controlBrake(int _throttle, int _brake)
-{
-    if (brakeLevel < _brake)
+{    if (brk_lvl < _brake)
     {
-        if (brakeLevel > 100)
+        if (brk_lvl > 100)
         {
             SetBrakePicture(true);
             return;
         }
-        brakeLevel = _brake;
+        brk_lvl = _brake;
     }
     else
     {
-        if (brakeLevel < 0)
+        if (brk_lvl <= 0)
         {
             SetBrakePicture(false);
             return;
         }
-        brakeLevel = _brake;
+        brk_lvl = _brake;
     }
 
     
-    if (brakeLevel > 0)
+    if (brk_lvl > 0)
     {
         SetBrakePicture(true);
     }
