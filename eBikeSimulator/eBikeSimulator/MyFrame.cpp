@@ -155,12 +155,17 @@ void MyFrame::SetBrakePicture(bool _bstatus)
     //Update UI
     if (_bstatus)
     {
-        //brakeGif = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon1.gif"), wxBITMAP_TYPE_GIF), wxPoint(1065, 50), wxSize(255, 287));
+        // optional blueprint image with light in the back on
+        brakeGif = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprintbrake.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means 
+
         brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
         Update();
     }
     else
     {
+        //optional blueprintimage with light in the back on
+        brakeGif= new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "
+
         brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_brake.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
         Update();
     }
