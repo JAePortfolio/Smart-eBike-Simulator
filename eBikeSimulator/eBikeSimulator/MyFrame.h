@@ -25,9 +25,12 @@ public:							// Global variables, other function delcarations, etc
 	wxStaticBitmap *image, *bike_rearViewImage, *brakePicture, *brakeGif;
 	wxStaticText *textForControls;
 	bool headlightOn;
-
+	wxSlider* throttleSlider;
+	wxStaticText* throttleSliderValue;
 
 	void OnKeyDown(wxKeyEvent& event);
+	void OnKeyUp(wxKeyEvent& event);
+
 	wxDECLARE_EVENT_TABLE();
 	void raspberryPiConsole(std::string outputMessage);
 	void leftTurnSignal();
@@ -35,6 +38,18 @@ public:							// Global variables, other function delcarations, etc
 	void headlightActivation();
     void controlBrake(int _throttle, int _break);
     void SetBrakePicture(bool);
-private:     int brakeLevel;
+	void OnThrottleSliderScrolled(wxCommandEvent&);
+	void increaseSpeed();
+	void decreaseSpeed();
+
+private:     
+	int brakeLevel;
+	double digitalThrottleValue = 0.0;
+	double currentSpeed,tmpSpeed = 0.0;
+	wxStaticText* speedText;//Temporary Speed Display
+	bool upKeyPressed = false;
+	clock_t keyPressedTime, keyReleasedTime;
+	double totalKeyPressedTime;
+	const double bikeAcceleration = 25.0 / 13.0;
 };
 

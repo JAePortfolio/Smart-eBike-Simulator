@@ -14,6 +14,7 @@
 #include <chrono>
 #include <thread>
 #include <string>
+#include <algorithm>
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	//EVT_KEY_DOWN(turnLeftEvent)
@@ -28,9 +29,10 @@ int brk_lvl = 0;
 MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(1366,768))
 {
     brk_lvl = 0;
-	wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1364, 766), wxWANTS_CHARS);
-	panel->SetBackgroundColour(wxColour(*wxWHITE));
-	panel->Connect(wxEVT_CHAR, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
+	//wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1364, 766), wxWANTS_CHARS);
+	this->SetBackgroundColour(wxColour(*wxWHITE));
+	this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
+	this->Connect(wxEVT_KEY_UP, wxKeyEventHandler(MyFrame::OnKeyUp)); //Connects the keyboard event handler to this panel
 	SetFont(wxFont(18, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	/*wxString dir;
 	if (wxFile::Exists(wxT("./bike_sideView.png")))
@@ -53,7 +55,15 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341,191), wxSize(682,383)); // "../ means parent directory, where the SLN file is
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
     brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
-
+	//Throttle 
+	throttleSlider = new wxSlider(this, wxID_ANY, 0, 0, 35, wxPoint(1025, 574), wxSize(20, 150), wxSL_VERTICAL | wxSL_INVERSE);
+	wxStaticText* throttleText = new wxStaticText(this, wxID_ANY, "T\nh\nr\no\nt\nt\nl\ne",wxPoint(1045, 585), wxDefaultSize, wxALIGN_CENTER);
+	throttleText->SetFont(wxFont(10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	throttleSliderValue = new wxStaticText(this, wxID_ANY, "0.7",wxPoint(1010, 649), wxDefaultSize, wxALIGN_TOP);
+	throttleSliderValue->SetFont(wxFont(8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	throttleSlider->Bind(wxEVT_SLIDER, &MyFrame::OnThrottleSliderScrolled, this);
+	//temporary Speed Display
+	speedText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed),wxPoint(800, 649), wxDefaultSize, wxALIGN_TOP);
 }
 
 void MyFrame::raspberryPiConsole(std::string outputMessage) {
@@ -62,25 +72,63 @@ void MyFrame::raspberryPiConsole(std::string outputMessage) {
 
 void MyFrame::OnKeyDown(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
-	if (key == 108) { // ASCII code of l (lowercase L)
+	//LowerCase ASCII don't work once I have changed the EVENT for KEY DOWN and UP. SO Use uppercase ones
+	if (key == 76) { // ASCII code of l (lowercase L)
 		//raspberryPiConsole("Turning Left");
 		leftTurnSignal();
 	}
-	else if (key == 114) { // ASCII code of r
+	else if (key == 82) { // ASCII code of r
 		rightTurnSignal();
 	}
 
-	else if (key == 104) { // ASCII code of h
+	else if (key == 72) { // ASCII code of h
 		headlightActivation();
 	}
-    else if (key == 122) // Z for increasing brake level
+    else if (key == 90) // Z for increasing brake level
     {
         controlBrake(0, brk_lvl + 15);
     }
-    else if (key == 120) //X for decreasing brake level 
+    else if (key == 88) //X for decreasing brake level 
     {
         controlBrake(0, brk_lvl - 15);
     }
+	else if (key == 315) {//ASCI code for up Arrow
+		if (!upKeyPressed) {
+			upKeyPressed = true;
+			keyPressedTime = clock();
+		}
+		//Temporarily keep increasing speed until key is released
+		tmpSpeed = (bikeAcceleration* (digitalThrottleValue / 1024.0)*(1.0 / 31.0)) + tmpSpeed;
+		tmpSpeed = std::min(tmpSpeed, 25.0);
+		speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), tmpSpeed));
+	}
+	else if (key == 317) {//ASCI code for up Arrow
+		if (!upKeyPressed) {
+			upKeyPressed = true;
+			keyPressedTime = clock();
+		}
+		//Temporarily keep increasing speed until key is released
+		tmpSpeed = tmpSpeed-(bikeAcceleration* (1-(digitalThrottleValue / 1024.0))*(1.0 / 31.0)) ;
+		tmpSpeed = std::max(tmpSpeed, 0.0);
+		speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), tmpSpeed));
+	}
+}
+void MyFrame::OnKeyUp(wxKeyEvent& event) {
+	wxChar key = event.GetKeyCode();
+	if (key == 315) {//ASCI code for up Arrow
+		keyReleasedTime = clock();
+
+		totalKeyPressedTime = double(keyReleasedTime - keyPressedTime) / 1000.0;
+		upKeyPressed = false;
+		increaseSpeed();
+	}
+	else if (key == 317) {//ASCI code for Down Arrow
+		keyReleasedTime = clock();
+
+		totalKeyPressedTime = double(keyReleasedTime - keyPressedTime) / 1000.0;
+		upKeyPressed = false;
+		decreaseSpeed();
+	}
 }
 
 void MyFrame::leftTurnSignal() {
@@ -177,6 +225,29 @@ void MyFrame::SetBrakePicture(bool _bstatus)
         Update();
     }
    
+}
+
+void MyFrame::OnThrottleSliderScrolled(wxCommandEvent&) {
+	double currValue = double(throttleSlider->GetValue()) / 10 + 0.7;
+	digitalThrottleValue = (((float)currValue - 0.7) / .00341796875) + 1;
+	throttleSliderValue->SetLabel(wxString::Format(wxT("%.1f"), currValue));
+
+}
+void MyFrame::increaseSpeed() {
+	currentSpeed = currentSpeed+(bikeAcceleration * (digitalThrottleValue / 1024.0)*totalKeyPressedTime);
+	
+	currentSpeed = std::min(currentSpeed, 25.0);
+	speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed));
+	tmpSpeed = currentSpeed;
+
+}
+void MyFrame::decreaseSpeed() {
+	currentSpeed = currentSpeed - (bikeAcceleration * (1-(digitalThrottleValue / 1024.0))*totalKeyPressedTime);
+
+	currentSpeed = std::max(currentSpeed, 0.0);
+	speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed));
+	tmpSpeed = currentSpeed;
+
 }
 
 MyFrame::~MyFrame()
