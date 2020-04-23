@@ -13,7 +13,7 @@
 #include "wx/event.h"
 #include <chrono>
 #include <thread>
-
+#include <string>
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	//EVT_KEY_DOWN(turnLeftEvent)
@@ -21,6 +21,7 @@ wxEND_EVENT_TABLE()
 
 wxStaticBitmap *image, *bike_rearViewImage, *frontWheel;
 wxStaticText *textForControls;
+wxListBox *raspberryPi;
 bool headlightOn = false;
 int brk_lvl = 0;
 
@@ -46,17 +47,23 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 640), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
     textForControls = new wxStaticText(this, wxID_ANY, "Z-BrakeIncr + 15%", wxPoint(1065, 670), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
     textForControls = new wxStaticText(this, wxID_ANY, "X-BrakeDecr - 15%", wxPoint(1065, 700), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+
+	raspberryPi = new wxListBox(this, wxID_ANY, wxPoint(594, 24), wxSize(255, 143));
+
 	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341,191), wxSize(682,383)); // "../ means parent directory, where the SLN file is
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
     brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 
 }
 
+void MyFrame::raspberryPiConsole(std::string outputMessage) {
+	raspberryPi->AppendString(outputMessage); // Do not use this function for now, it crashes.
+}
+
 void MyFrame::OnKeyDown(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
 	if (key == 108) { // ASCII code of l (lowercase L)
-
-                      //wxLogMessage(wxT("L has been pressed")); //-You can use this to test if your key code is correct
+		//raspberryPiConsole("Turning Left");
 		leftTurnSignal();
 	}
 	else if (key == 114) { // ASCII code of r

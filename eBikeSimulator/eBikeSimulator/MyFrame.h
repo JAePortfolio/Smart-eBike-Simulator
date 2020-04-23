@@ -10,6 +10,7 @@
 
 #include "wx/wx.h"
 #include <chrono>
+#include <string>
 
 class MyFrame : public wxFrame
 {
@@ -19,12 +20,16 @@ public:							// Frame declaration
 public:							// Global variables, other function delcarations, etc
 	wxButton *m_btn1 = nullptr;
 	wxTextCtrl *m_txt1 = nullptr;
+	wxListBox *raspberryPi = nullptr;
     //Define names of break pictures ON and OFF
 	wxStaticBitmap *image, *bike_rearViewImage, *brakePicture, *brakeGif;
 	wxStaticText *textForControls;
 	bool headlightOn;
+
+
 	void OnKeyDown(wxKeyEvent& event);
 	wxDECLARE_EVENT_TABLE();
+	void raspberryPiConsole(std::string outputMessage);
 	void leftTurnSignal();
 	void rightTurnSignal();
 	void headlightActivation();
