@@ -15,6 +15,7 @@
 #include <thread>
 #include <string>
 #include <algorithm>
+//#include "kwic/LCDWindow.h"
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	//EVT_KEY_DOWN(turnLeftEvent)
@@ -25,6 +26,9 @@ wxStaticText *textForControls;
 wxListBox *raspberryPi;
 bool headlightOn = false;
 int brk_lvl = 0;
+long piVisible = 2;
+//kwxLCDDisplay* test; Leave disabled
+
 
 MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(1366,768))
 {
@@ -43,6 +47,7 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 		wxLogWarning(wxT("Can't find image files in either '.' or '..'!"));
 	*/
 
+	//test = new kwxLCDDisplay(this, wxPoint(0, 0), wxSize(100, 100)); Leave disabled
 	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 550), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	textForControls = new wxStaticText(this, wxID_ANY, "L-Signal Left", wxPoint(1065, 580), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	textForControls = new wxStaticText(this, wxID_ANY, "R-Signal Right", wxPoint(1065, 610), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
@@ -66,11 +71,23 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	throttleSliderValue->SetFont(wxFont(8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	throttleSlider->Bind(wxEVT_SLIDER, &MyFrame::OnThrottleSliderScrolled, this);
 	//temporary Speed Display
-	speedText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed),wxPoint(800, 649), wxDefaultSize, wxALIGN_TOP);
+	speedText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed),wxPoint(43, 623), wxDefaultSize, wxALIGN_TOP);
+
+	timeElapsedText = new wxStaticText(this, wxID_ANY, "Time Elapsed:", wxPoint(341, 650), wxDefaultSize, wxALIGN_TOP);
+	timeElapsedHours = new wxStaticText(this, wxID_ANY, "Hours", wxPoint(527, 700), wxDefaultSize, wxALIGN_TOP);
+	timeElapsedMins	= new wxStaticText(this, wxID_ANY, "Mins", wxPoint(607, 700), wxDefaultSize, wxALIGN_TOP);
+	timeElapsed_mins = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(607, 650), wxSize(60,40));
+	timeElapsed_mins->SetRange(0, 59);
+	timeElapsed_hours = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(527, 650), wxSize(60,40));
+	timeElapsed_hours->SetRange(0, 3);
+	setTimeElapsedButton = new wxButton(this, wxID_ANY, "Set Time", wxPoint(341, 685), wxDefaultSize); // Functionality needs to be connected to this button 
+
+
 }
 
 void MyFrame::raspberryPiConsole(std::string outputMessage) {
 	raspberryPi->AppendString(outputMessage); 
+	raspberryPi->SetSelection(raspberryPi->GetCount()-1);
 }
 
 void MyFrame::OnKeyDown(wxKeyEvent& event) {

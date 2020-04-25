@@ -11,6 +11,10 @@
 #include "wx/wx.h"
 #include <chrono>
 #include <string>
+//#include "kwic/LCDWindow.h"
+#include "wx/spinctrl.h"
+#include "wx/button.h"
+
 
 class MyFrame : public wxFrame
 {
@@ -27,6 +31,15 @@ public:							// Global variables, other function delcarations, etc
 	bool headlightOn;
 	wxSlider* throttleSlider;
 	wxStaticText* throttleSliderValue;
+
+	//kwxLCDDisplay* test; Leave disabled
+	wxSpinCtrl* timeElapsed_hours;
+	wxSpinCtrl* timeElapsed_mins;
+	wxStaticText* timeElapsedText;
+	wxStaticText* timeElapsedHours;
+	wxStaticText* timeElapsedMins;
+	wxButton* setTimeElapsedButton;
+	
 
 	void OnKeyDown(wxKeyEvent& event);
 	void OnKeyUp(wxKeyEvent& event);
