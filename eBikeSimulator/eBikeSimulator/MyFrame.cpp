@@ -51,12 +51,13 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
     textForControls = new wxStaticText(this, wxID_ANY, "X-BrakeDecr - 15%", wxPoint(1065, 700), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 
 	raspberryPi = new wxListBox(this, wxID_ANY, wxPoint(594, 24), wxSize(255, 143));
-
+	raspberryPiConsole("Raspberry Pi: ON");
+	raspberryPiConsole("Blynk Initialized");
 	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341,191), wxSize(682,383)); // "../ means parent directory, where the SLN file is
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
     brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
-	//initialized brakeGif
 	brakeGif = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383));
+	
 	//Throttle 
 	throttleSlider = new wxSlider(this, wxID_ANY, 0, 0, 35, wxPoint(1025, 574), wxSize(20, 150), wxSL_VERTICAL | wxSL_INVERSE);
 	wxStaticText* throttleText = new wxStaticText(this, wxID_ANY, "T\nh\nr\no\nt\nt\nl\ne",wxPoint(1045, 585), wxDefaultSize, wxALIGN_CENTER);
@@ -69,14 +70,13 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 }
 
 void MyFrame::raspberryPiConsole(std::string outputMessage) {
-	raspberryPi->AppendString(outputMessage); // Do not use this function for now, it crashes.
+	raspberryPi->AppendString(outputMessage); 
 }
 
 void MyFrame::OnKeyDown(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
 	//LowerCase ASCII don't work once I have changed the EVENT for KEY DOWN and UP. SO Use uppercase ones
 	if (key == 76) { // ASCII code of l (lowercase L)
-		//raspberryPiConsole("Turning Left");
 		leftTurnSignal();
 	}
 	else if (key == 82) { // ASCII code of r
@@ -134,53 +134,47 @@ void MyFrame::OnKeyUp(wxKeyEvent& event) {
 }
 
 void MyFrame::leftTurnSignal() {
+	raspberryPiConsole("Turning Left");
 	int counter = 0;
 	while (counter < 10) { // 500ms*10 = 5 seconds
-		//new wxStaticBitmap will increase memory each time. Rather modify the current image.
-		//bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView_left.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 		bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_rearView_left.png"), wxBITMAP_TYPE_PNG));
 		counter++;
 		std::this_thread::sleep_for (std::chrono::milliseconds(500)); // Wait half a second
 		Update();
-		//bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 		bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG));
-
 		std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Wait half a second
 		counter++;
 	}
-	//bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 	bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG));
 	Update();
 }
 
 void MyFrame::rightTurnSignal() {
+	raspberryPiConsole("Turning Right");
 	int counter = 0;
 	while (counter < 10) { // 500ms*10 = 5 seconds
-		//bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView_right.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 		bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_rearView_right.png"), wxBITMAP_TYPE_PNG));
 		counter++;
 		std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Wait half a second
 		Update();
-		//bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 		bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG));
 		std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Wait half a second
 		counter++;
 	}
-	//bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 	bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG));
 	Update();
 }
 
 void MyFrame::headlightActivation() {
 	if (headlightOn == false) {
+		raspberryPiConsole("Headlight ON");
 		headlightOn = !headlightOn;
-		//image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint_headlight.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means parent directory, where the SLN file is
 		image->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint_headlight.png"), wxBITMAP_TYPE_PNG));
 		Update();
 	}
 	else if (headlightOn == true) {
+		raspberryPiConsole("Headlight OFF");
 		headlightOn = !headlightOn;
-		//image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means parent directory, where the SLN file is
 		image->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG));
 		Update();
 	}
@@ -222,23 +216,16 @@ void MyFrame::SetBrakePicture(bool _bstatus)
     //Update UI
     if (_bstatus)
     {
+		raspberryPiConsole("Braking");
         // optional blueprint image with light in the back on
-       // brakeGif = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprintbrake.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means 
 		brakeGif->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprintbrake.png"), wxBITMAP_TYPE_PNG));
-        //brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 		brakePicture->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon.png"), wxBITMAP_TYPE_PNG));
-
 		Update();
     }
     else
     {
-        //optional blueprintimage with light in the back on
-       // brakeGif= new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "
 		brakeGif->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG));
-
-       // brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_brake.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 		brakePicture->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brake.png"), wxBITMAP_TYPE_PNG));
-
 		Update();
     }
    
@@ -252,7 +239,6 @@ void MyFrame::OnThrottleSliderScrolled(wxCommandEvent&) {
 }
 void MyFrame::increaseSpeed() {
 	currentSpeed = currentSpeed+(bikeAcceleration * (digitalThrottleValue / 1024.0)*totalKeyPressedTime);
-	
 	currentSpeed = std::min(currentSpeed, 25.0);
 	speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed));
 	tmpSpeed = currentSpeed;
@@ -260,7 +246,6 @@ void MyFrame::increaseSpeed() {
 }
 void MyFrame::decreaseSpeed() {
 	currentSpeed = currentSpeed - (bikeAcceleration * (1-(digitalThrottleValue / 1024.0))*totalKeyPressedTime);
-
 	currentSpeed = std::max(currentSpeed, 0.0);
 	speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed));
 	tmpSpeed = currentSpeed;
