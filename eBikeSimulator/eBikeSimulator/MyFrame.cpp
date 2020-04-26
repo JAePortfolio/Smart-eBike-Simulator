@@ -26,7 +26,6 @@ wxStaticText *textForControls;
 wxListBox *raspberryPi;
 bool headlightOn = false;
 int brk_lvl = 0;
-long piVisible = 2;
 //kwxLCDDisplay* test; Leave disabled
 
 
@@ -38,55 +37,70 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
 	this->Connect(wxEVT_KEY_UP, wxKeyEventHandler(MyFrame::OnKeyUp)); //Connects the keyboard event handler to this panel
 	SetFont(wxFont(18, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	/*wxString dir;
-	if (wxFile::Exists(wxT("./bike_sideView.png")))
-		dir = wxT("./");
-	else if (wxFile::Exists(wxT("../bike_sideView.png")))
-		dir = wxT("../");
-	else
-		wxLogWarning(wxT("Can't find image files in either '.' or '..'!"));
-	*/
 
 	//test = new kwxLCDDisplay(this, wxPoint(0, 0), wxSize(100, 100)); Leave disabled
-	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 550), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls = new wxStaticText(this, wxID_ANY, "L-Signal Left", wxPoint(1065, 580), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls = new wxStaticText(this, wxID_ANY, "R-Signal Right", wxPoint(1065, 610), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 640), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-    textForControls = new wxStaticText(this, wxID_ANY, "Z-BrakeIncr + 15%", wxPoint(1065, 670), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-    textForControls = new wxStaticText(this, wxID_ANY, "X-BrakeDecr - 15%", wxPoint(1065, 700), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControlsSetup();
+	raspberryPiSetup();
+	initialImageDisplaySetup();
+	throttleTextSetup();
+	timeElapsedSetup();
+}
 
+void MyFrame::textForControlsSetup() {
+	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 550), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
+	textForControls = new wxStaticText(this, wxID_ANY, "L-Signal Left", wxPoint(1065, 580), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "R-Signal Right", wxPoint(1065, 610), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 640), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "Z-BrakeIncr + 15%", wxPoint(1065, 670), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "X-BrakeDecr - 15%", wxPoint(1065, 700), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+}
+void MyFrame::raspberryPiSetup() {
 	raspberryPi = new wxListBox(this, wxID_ANY, wxPoint(594, 24), wxSize(255, 143));
+	raspberryPi->SetFont(wxFont(14, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	raspberryPi->SetBackgroundColour(*wxBLACK);
+	raspberryPi->SetForegroundColour(*wxWHITE);
 	raspberryPiConsole("Raspberry Pi: ON");
 	raspberryPiConsole("Blynk Initialized");
-	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341,191), wxSize(682,383)); // "../ means parent directory, where the SLN file is
+
+}
+void MyFrame::initialImageDisplaySetup() {
+	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means parent directory, where the SLN file is
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
-    brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
-	brakeGif = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383));
-	
+	brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
+	brakingAnim = new wxAnimationCtrl(this, wxID_ANY, wxAnimation(wxT("../eBikeSimulator/gifs/bike_braking.gif")), wxPoint(895, 24), wxSize(426, 143));
+	brakeGif = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // How is this a GIF?
+
+}
+void MyFrame::throttleTextSetup() {
 	//Throttle 
 	throttleSlider = new wxSlider(this, wxID_ANY, 0, 0, 35, wxPoint(1025, 574), wxSize(20, 150), wxSL_VERTICAL | wxSL_INVERSE);
-	wxStaticText* throttleText = new wxStaticText(this, wxID_ANY, "T\nh\nr\no\nt\nt\nl\ne",wxPoint(1045, 585), wxDefaultSize, wxALIGN_CENTER);
+	wxStaticText* throttleText = new wxStaticText(this, wxID_ANY, "T\nh\nr\no\nt\nt\nl\ne", wxPoint(1045, 585), wxDefaultSize, wxALIGN_CENTER);
 	throttleText->SetFont(wxFont(10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	throttleSliderValue = new wxStaticText(this, wxID_ANY, "0.7",wxPoint(1010, 649), wxDefaultSize, wxALIGN_TOP);
+	throttleSliderValue = new wxStaticText(this, wxID_ANY, "0.7", wxPoint(1010, 649), wxDefaultSize, wxALIGN_TOP);
 	throttleSliderValue->SetFont(wxFont(8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	throttleSlider->Bind(wxEVT_SLIDER, &MyFrame::OnThrottleSliderScrolled, this);
 	//temporary Speed Display
-	speedText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed),wxPoint(43, 623), wxDefaultSize, wxALIGN_TOP);
-
+	speedText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed), wxPoint(43, 623), wxDefaultSize, wxALIGN_TOP);
+}
+void MyFrame::timeElapsedSetup() {
 	timeElapsedText = new wxStaticText(this, wxID_ANY, "Time Elapsed:", wxPoint(341, 650), wxDefaultSize, wxALIGN_TOP);
 	timeElapsedHours = new wxStaticText(this, wxID_ANY, "Hours", wxPoint(527, 700), wxDefaultSize, wxALIGN_TOP);
-	timeElapsedMins	= new wxStaticText(this, wxID_ANY, "Mins", wxPoint(607, 700), wxDefaultSize, wxALIGN_TOP);
-	timeElapsed_mins = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(607, 650), wxSize(60,40));
+	timeElapsedMins = new wxStaticText(this, wxID_ANY, "Mins", wxPoint(607, 700), wxDefaultSize, wxALIGN_TOP);
+	timeElapsed_mins = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(607, 650), wxSize(60, 40));
 	timeElapsed_mins->SetRange(0, 59);
-	timeElapsed_hours = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(527, 650), wxSize(60,40));
+	timeElapsed_hours = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(527, 650), wxSize(60, 40));
 	timeElapsed_hours->SetRange(0, 3);
 	setTimeElapsedButton = new wxButton(this, wxID_ANY, "Set Time", wxPoint(341, 685), wxDefaultSize); // Functionality needs to be connected to this button 
-
-
 }
 
 void MyFrame::raspberryPiConsole(std::string outputMessage) {
-	raspberryPi->AppendString(outputMessage); 
+	raspberryPi->AppendString(outputMessage);
 	raspberryPi->SetSelection(raspberryPi->GetCount()-1);
 }
 
@@ -238,12 +252,14 @@ void MyFrame::SetBrakePicture(bool _bstatus)
 		brakeGif->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprintbrake.png"), wxBITMAP_TYPE_PNG));
 		brakePicture->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon.png"), wxBITMAP_TYPE_PNG));
 		Update();
+		brakingAnim->Play(true);
     }
     else
     {
 		brakeGif->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG));
 		brakePicture->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brake.png"), wxBITMAP_TYPE_PNG));
 		Update();
+		brakingAnim->Play(false);
     }
    
 }
@@ -273,3 +289,13 @@ MyFrame::~MyFrame()
 {
 }
 
+
+// This function cal help with directory finding. 
+/*wxString dir;
+if (wxFile::Exists(wxT("./bike_sideView.png")))
+	dir = wxT("./");
+else if (wxFile::Exists(wxT("../bike_sideView.png")))
+	dir = wxT("../");
+else
+	wxLogWarning(wxT("Can't find image files in either '.' or '..'!"));
+*/

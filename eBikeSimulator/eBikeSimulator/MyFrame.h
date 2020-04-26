@@ -14,6 +14,7 @@
 //#include "kwic/LCDWindow.h"
 #include "wx/spinctrl.h"
 #include "wx/button.h"
+#include <wx/animate.h>
 
 
 class MyFrame : public wxFrame
@@ -40,11 +41,18 @@ public:							// Global variables, other function delcarations, etc
 	wxStaticText* timeElapsedMins;
 	wxButton* setTimeElapsedButton;
 	
+	wxAnimationCtrl* brakingAnim;
+	
 
 	void OnKeyDown(wxKeyEvent& event);
 	void OnKeyUp(wxKeyEvent& event);
 
 	wxDECLARE_EVENT_TABLE();
+	void textForControlsSetup();
+	void raspberryPiSetup();
+	void initialImageDisplaySetup();
+	void throttleTextSetup();
+	void timeElapsedSetup();
 	void raspberryPiConsole(std::string outputMessage);
 	void leftTurnSignal();
 	void rightTurnSignal();
