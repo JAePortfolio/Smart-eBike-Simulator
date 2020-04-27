@@ -361,3 +361,4 @@ MigrationBackup/
 /eBikeSimulator/eBikeExec
 #.DS_STORE FOLDER
 .DS_Store
+../.DS_Store

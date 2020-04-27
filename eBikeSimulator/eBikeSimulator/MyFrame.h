@@ -62,7 +62,9 @@ public:							// Global variables, other function delcarations, etc
 	void OnThrottleSliderScrolled(wxCommandEvent&);
 	void increaseSpeed();
 	void decreaseSpeed();
-
+    void keySetup();
+    void keyLock();
+    void keyUnlock();
 private:     
 	int brakeLevel;
 	double digitalThrottleValue = 0.0;

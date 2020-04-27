@@ -21,10 +21,11 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	//EVT_KEY_DOWN(turnLeftEvent)
 wxEND_EVENT_TABLE()
 
-wxStaticBitmap *image, *bike_rearViewImage, *frontWheel;
+wxStaticBitmap *image, *bike_rearViewImage, *frontWheel,*keyImage;
 wxStaticText *textForControls;
 wxListBox *raspberryPi;
 bool headlightOn = false;
+bool isLocked = true;
 int brk_lvl = 0;
 //kwxLCDDisplay* test; Leave disabled
 
@@ -44,8 +45,21 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	initialImageDisplaySetup();
 	throttleTextSetup();
 	timeElapsedSetup();
+    keySetup();
 }
-
+void MyFrame::keySetup() {
+ 
+    keyImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/key_lock.png"), wxBITMAP_TYPE_PNG), wxPoint(0, 0), wxSize(124, 131)); // "../ means parent directory, where the SLN file is
+    
+}
+void MyFrame::keyLock() {
+    keyImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/key_lock.png"), wxBITMAP_TYPE_PNG));
+    isLocked=true;
+}
+void MyFrame::keyUnlock() {
+    keyImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/key_unlock.png"), wxBITMAP_TYPE_PNG));
+    isLocked=false;
+}
 void MyFrame::textForControlsSetup() {
 	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 550), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
@@ -107,7 +121,8 @@ void MyFrame::raspberryPiConsole(std::string outputMessage) {
 void MyFrame::OnKeyDown(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
 	//LowerCase ASCII don't work once I have changed the EVENT for KEY DOWN and UP. SO Use uppercase ones
-	if (key == 76) { // ASCII code of l (lowercase L)
+    //wxLogMessage(wxString::Format(wxT("%d"),key));
+    if (key == 76) { // ASCII code of l (lowercase L)
 		leftTurnSignal();
 	}
 	else if (key == 82) { // ASCII code of r
@@ -145,6 +160,14 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 		tmpSpeed = std::max(tmpSpeed, 0.0);
 		speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), tmpSpeed));
 	}
+    else if (key== 75) {//ASCI code for k
+        if (isLocked) {
+            keyUnlock();
+        }
+        else if (!isLocked){
+            keyLock();
+        }
+    }
 }
 void MyFrame::OnKeyUp(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
