@@ -15,6 +15,7 @@
 #include <thread>
 #include <string>
 #include <algorithm>
+#include <wx/gauge.h>
 //#include "kwic/LCDWindow.h"
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
@@ -22,14 +23,15 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 wxEND_EVENT_TABLE()
 
 wxStaticBitmap *image, *bike_rearViewImage, *frontWheel,*keyImage;
-wxStaticText *textForControls;
+wxStaticText *textForControls,*batteryPercentageText;
 wxListBox *raspberryPi;
 bool headlightOn = false;
 bool isLocked = true;
 int brk_lvl = 0;
+wxGauge *batteryGauge;
 //kwxLCDDisplay* test; Leave disabled
-
-
+int batteryPercentage=100;
+double batteryVoltage=42.0;
 MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(1366,768))
 {
     brk_lvl = 0;
@@ -46,6 +48,7 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	throttleTextSetup();
 	timeElapsedSetup();
     keySetup();
+    batteryGaugeSetup();
 }
 void MyFrame::keySetup() {
  
@@ -59,6 +62,13 @@ void MyFrame::keyLock() {
 void MyFrame::keyUnlock() {
     keyImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/key_unlock.png"), wxBITMAP_TYPE_PNG));
     isLocked=false;
+}
+void MyFrame::batteryGaugeSetup() {
+    batteryGauge= new wxGauge(this, wxID_ANY, 100, wxPoint(134, 0), wxSize(100, 50) );
+    batteryPercentageText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("%d %"), batteryPercentage), wxPoint(164, 51), wxSize(50, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+    batteryPercentageText->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
+    batteryGauge->SetValue(batteryPercentage);
+    
 }
 void MyFrame::textForControlsSetup() {
 	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 550), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
@@ -111,6 +121,24 @@ void MyFrame::timeElapsedSetup() {
 	timeElapsed_hours = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(527, 650), wxSize(60, 40));
 	timeElapsed_hours->SetRange(0, 3);
 	setTimeElapsedButton = new wxButton(this, wxID_ANY, "Set Time", wxPoint(341, 685), wxDefaultSize); // Functionality needs to be connected to this button 
+      //batteryPercentageCharged();
+    setTimeElapsedButton->Bind(wxEVT_BUTTON, &MyFrame::batteryPercentageCharged, this);
+   
+}
+void MyFrame::batteryPercentageCharged(wxCommandEvent& ) {
+    //wxLogMessage(wxString::Format(wxT("%d%"), timeElapsed_hours->GetValue()));
+    int totaltime= (timeElapsed_hours->GetValue()*60)+timeElapsed_mins->GetValue();
+    double tmp= (double(totaltime)/180.0)*100.0;
+    batteryPercentage= 100-tmp;
+    setBatteryPercentage();
+    
+}
+void MyFrame::setBatteryPercentage(){
+    batteryGauge->SetValue(batteryPercentage);
+    batteryPercentageText->SetLabel(wxString::Format(wxT("%d %"), batteryPercentage));
+    batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));
+    raspberryPiConsole("Battery Percentage:"+std::to_string(batteryPercentage)+"%");
+    raspberryPiConsole("Battery Voltage:" +std::to_string(batteryVoltage)+"V");
 }
 
 void MyFrame::raspberryPiConsole(std::string outputMessage) {

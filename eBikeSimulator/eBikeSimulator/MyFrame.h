@@ -15,8 +15,7 @@
 #include "wx/spinctrl.h"
 #include "wx/button.h"
 #include <wx/animate.h>
-
-
+#include <wx/gauge.h>
 class MyFrame : public wxFrame
 {
 public:							// Frame declaration
@@ -65,6 +64,10 @@ public:							// Global variables, other function delcarations, etc
     void keySetup();
     void keyLock();
     void keyUnlock();
+    void batteryGaugeSetup();
+    void batteryPercentageCharged(wxCommandEvent& );
+    void setBatteryPercentage();
+    
 private:     
 	int brakeLevel;
 	double digitalThrottleValue = 0.0;
