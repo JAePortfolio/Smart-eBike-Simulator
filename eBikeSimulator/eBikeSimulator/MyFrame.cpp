@@ -122,7 +122,7 @@ void MyFrame::timeElapsedSetup() {
 	timeElapsed_hours->SetRange(0, 3);
 	setTimeElapsedButton = new wxButton(this, wxID_ANY, "Set Time", wxPoint(341, 685), wxDefaultSize); // Functionality needs to be connected to this button 
       //batteryPercentageCharged();
-    //setTimeElapsedButton->Bind(wxEVT_BUTTON, &MyFrame::batteryPercentageCharged, this);
+    setTimeElapsedButton->Bind(wxEVT_BUTTON, &MyFrame::batteryPercentageCharged, this);
    
 }
 void MyFrame::batteryPercentageCharged(wxCommandEvent& ) {
@@ -135,7 +135,7 @@ void MyFrame::batteryPercentageCharged(wxCommandEvent& ) {
 }
 void MyFrame::setBatteryPercentage(){
     batteryGauge->SetValue(batteryPercentage);
-    batteryPercentageText->SetLabel(wxString::Format(wxT("%d %"), batteryPercentage));
+    batteryPercentageText->SetLabel(wxString::Format(wxT("%d%%"), batteryPercentage));
     batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));
     raspberryPiConsole("Battery Percentage:"+std::to_string(batteryPercentage)+"%");
     raspberryPiConsole("Battery Voltage:" +std::to_string(batteryVoltage)+"V");
