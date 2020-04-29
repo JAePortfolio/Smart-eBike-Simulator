@@ -32,9 +32,9 @@ wxGauge *batteryGauge;
 //kwxLCDDisplay* test; Leave disabled
 int batteryPercentage=100;
 double batteryVoltage=42.0;
-MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(1366,768))
-{
-    brk_lvl = 0;
+
+MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(1366,768), wxDEFAULT_FRAME_STYLE & ~wxMAXIMIZE_BOX){
+
 	//wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1364, 766), wxWANTS_CHARS);
 	this->SetBackgroundColour(wxColour(*wxWHITE));
 	this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
@@ -52,7 +52,7 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 }
 void MyFrame::keySetup() {
  
-    keyImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/key_lock.png"), wxBITMAP_TYPE_PNG), wxPoint(0, 0), wxSize(124, 131)); // "../ means parent directory, where the SLN file is
+    keyImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/key_lock.png"), wxBITMAP_TYPE_PNG), wxPoint(43, 24), wxSize(124, 131)); // "../ means parent directory, where the SLN file is
     
 }
 void MyFrame::keyLock() {
@@ -64,29 +64,32 @@ void MyFrame::keyUnlock() {
     isLocked=false;
 }
 void MyFrame::batteryGaugeSetup() {
-    batteryGauge= new wxGauge(this, wxID_ANY, 100, wxPoint(134, 0), wxSize(100, 50) );
-    batteryPercentageText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("%d%%"), batteryPercentage), wxPoint(164, 51), wxSize(50, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+    batteryGauge= new wxGauge(this, wxID_ANY, 100, wxPoint(275, 72), wxSize(200, 50) );
+    batteryPercentageText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Battery level: %d%%"), batteryPercentage), wxPoint(285, 123), wxSize(200, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
     batteryPercentageText->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
     batteryGauge->SetValue(batteryPercentage);
     
 }
 void MyFrame::textForControlsSetup() {
-	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 550), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 575), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
-	textForControls = new wxStaticText(this, wxID_ANY, "L-Signal Left", wxPoint(1065, 580), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "R-Signal Right", wxPoint(1065, 610), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 640), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "Z-BrakeIncr + 15%", wxPoint(1065, 670), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "X-BrakeDecr - 15%", wxPoint(1065, 700), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "K-Unlock/Lock", wxPoint(1065, 600), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "L-Signal Left", wxPoint(1065, 620), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "R-Signal Right", wxPoint(1065, 640), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 660), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "Z-BrakeIncr + 15%", wxPoint(1065, 680), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "X-BrakeDecr - 15%", wxPoint(1065, 700), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 }
+
 void MyFrame::raspberryPiSetup() {
 	raspberryPi = new wxListBox(this, wxID_ANY, wxPoint(594, 24), wxSize(255, 143));
-	raspberryPi->SetFont(wxFont(14, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	raspberryPi->SetFont(wxFont(13, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	raspberryPi->SetBackgroundColour(*wxBLACK);
 	raspberryPi->SetForegroundColour(*wxWHITE);
 	raspberryPiConsole("Raspberry Pi: ON");
@@ -135,7 +138,7 @@ void MyFrame::batteryPercentageCharged(wxCommandEvent& ) {
 }
 void MyFrame::setBatteryPercentage(){
     batteryGauge->SetValue(batteryPercentage);
-    batteryPercentageText->SetLabel(wxString::Format(wxT("%d%%"), batteryPercentage));
+    batteryPercentageText->SetLabel(wxString::Format(wxT("Battery level: %d%%"), batteryPercentage));
     batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));
     raspberryPiConsole("Battery Percentage:"+std::to_string(batteryPercentage)+"%");
     raspberryPiConsole("Battery Voltage:" +std::to_string(batteryVoltage)+"V");
