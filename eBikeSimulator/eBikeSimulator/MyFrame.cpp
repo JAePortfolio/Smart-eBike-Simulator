@@ -233,7 +233,7 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 void MyFrame::OnKeyUp(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
 	if (key == 315 && !isLocked) {//ASCI code for up Arrow
-//>>>>>>> 302d9945b4cad576bebbdd80b42bee9f27e24364
+
 		keyReleasedTime = clock();
 
 		totalKeyPressedTime = double(keyReleasedTime - keyPressedTime) / 1000.0;
@@ -332,6 +332,7 @@ void MyFrame::controlBrake(int _throttle, int _brake)
     {
         if (brk_lvl > 100)
         {
+            _brake = 100;
             SetBrakePicture(true);
             return;
         }
@@ -363,7 +364,6 @@ void MyFrame::SetBrakePicture(bool _bstatus)
     //Update UI
     if (_bstatus)
     {
-		raspberryPiConsole("Braking");
         // optional blueprint image with light in the back on
 		brakeGif->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprintbrake.png"), wxBITMAP_TYPE_PNG));
 		brakePicture->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon.png"), wxBITMAP_TYPE_PNG));
@@ -377,6 +377,7 @@ void MyFrame::SetBrakePicture(bool _bstatus)
 		Update();
 		brakingAnim->Play(false);
     }
+    raspberryPiConsole("Braking: " + std::to_string(brk_lvl) + "%");
    
 }
 
