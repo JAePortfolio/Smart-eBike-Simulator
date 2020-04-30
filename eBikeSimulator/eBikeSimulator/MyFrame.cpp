@@ -232,11 +232,6 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 }
 void MyFrame::OnKeyUp(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
-//<<<<<<< HEAD
-
-    // :  Always avoid else if-- while you have switch branching
-	if (key == 315) {//ASCI code for up Arrow
-
 	if (key == 315 && !isLocked) {//ASCI code for up Arrow
 //>>>>>>> 302d9945b4cad576bebbdd80b42bee9f27e24364
 		keyReleasedTime = clock();
