@@ -146,11 +146,10 @@ void MyFrame::setBatteryPercentage(){
     raspberryPiConsole("Battery Percentage:"+std::to_string(batteryPercentage)+"%");
     raspberryPiConsole("Battery Voltage:" +std::to_string(batteryVoltage)+"V");
     if (batteryVoltage<31 && batteryVoltage>30.4){
-        raspberryPiConsole("DC to DC Converter will shut down soon" );
+        raspberryPiConsole("DC-DC Converter will" );
+        raspberryPiConsole("shutdown soon" );
     }
-  else  if (batteryVoltage<30.4){
-        raspberryPiConsole("DC to DC Converter is OFF" );
-    }
+ 
   else  if (batteryVoltage*(10.7/(10.7+255))<1.224){
            raspberryPiConsole("RaspberryPi is OFF" );
        }
