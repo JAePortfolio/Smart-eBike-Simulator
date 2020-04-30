@@ -22,6 +22,7 @@ public:							// Frame declaration
 	MyFrame();
 	~MyFrame();
 public:							// Global variables, other function delcarations, etc
+    LPPOINT* cursorPos;            // Point to save cursor's position
 	wxButton *m_btn1 = nullptr;
 	wxTextCtrl *m_txt1 = nullptr;
 	wxListBox *raspberryPi = nullptr;
@@ -38,8 +39,9 @@ public:							// Global variables, other function delcarations, etc
 	wxStaticText* timeElapsedText;
 	wxStaticText* timeElapsedHours;
 	wxStaticText* timeElapsedMins;
+    wxStaticText* lidarTxt;
 	wxButton* setTimeElapsedButton;
-	
+    wxGauge* lidarGauge;
 	wxAnimationCtrl* brakingAnim;
 	
 
@@ -67,7 +69,10 @@ public:							// Global variables, other function delcarations, etc
     void batteryGaugeSetup();
     void batteryPercentageCharged(wxCommandEvent& );
     void setBatteryPercentage();
-    
+    void lidarGaugeSetup();
+    void setLidarLevel(int);
+    double Mapping(int a1, int a2, int b1, int b2, int _percentage);   //map values 40 to 1386 to a 0-100% range for lidar
+
 private:     
 	int brakeLevel;
 	double digitalThrottleValue = 0.0;

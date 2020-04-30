@@ -32,8 +32,10 @@ wxGauge *batteryGauge;
 //kwxLCDDisplay* test; Leave disabled
 int batteryPercentage=100;
 double batteryVoltage=42.0;
+int xWidth = 1366;
+int yWidth = 768;
 
-MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(1366,768), wxDEFAULT_FRAME_STYLE & ~wxMAXIMIZE_BOX){
+MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(xWidth, yWidth), wxDEFAULT_FRAME_STYLE & ~wxMAXIMIZE_BOX){
 
 	//wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1364, 766), wxWANTS_CHARS);
 	this->SetBackgroundColour(wxColour(*wxWHITE));
@@ -49,7 +51,22 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	timeElapsedSetup();
     keySetup();
     batteryGaugeSetup();
+    lidarGaugeSetup();
 }
+
+void MyFrame::lidarGaugeSetup()
+{
+    lidarGauge = new wxGauge(this, wxID_ANY, 100, wxPoint(10, 300), wxSize(200, 50));
+    lidarTxt = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("LiDar Distance: %dm"), 0), wxPoint(10, 350), wxSize(200, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+    lidarTxt->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
+    lidarGauge->SetValue(0);
+}
+
+void MyFrame::setLidarLevel(int val)
+{
+    lidarGauge->SetValue(val);
+}
+
 void MyFrame::keySetup() {
  
     keyImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/key_lock.png"), wxBITMAP_TYPE_PNG), wxPoint(43, 24), wxSize(124, 131)); // "../ means parent directory, where the SLN file is
@@ -68,7 +85,6 @@ void MyFrame::batteryGaugeSetup() {
     batteryPercentageText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Battery level: %d%%"), batteryPercentage), wxPoint(285, 123), wxSize(200, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
     batteryPercentageText->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
     batteryGauge->SetValue(batteryPercentage);
-    
 }
 void MyFrame::textForControlsSetup() {
 	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 575), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
@@ -199,9 +215,12 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
             keyLock();
         }
     }
+    
 }
 void MyFrame::OnKeyUp(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
+
+    // :  Always avoid else if-- while you have switch branching
 	if (key == 315) {//ASCI code for up Arrow
 		keyReleasedTime = clock();
 
@@ -216,7 +235,38 @@ void MyFrame::OnKeyUp(wxKeyEvent& event) {
 		upKeyPressed = false;
 		decreaseSpeed();
 	}
+
+    // If c is pressed then take cursor's value and update lidar.
+    //It's like Lidar is ON when c is pressed.
+    if (key == 'C') 
+    {
+        double lidVal; //0-100;
+        POINT point;
+        GetCursorPos(&point);   //40 - 1386 range of x values on the screen
+        lidVal = Mapping(40, xWidth, 100, 0, point.x);
+        int val2 = (int)Mapping(40, xWidth, 0, 40, point.x);
+        if (lidVal < 0) lidVal = 0;
+        if (val2 > 40)
+        {
+            raspberryPiConsole("Obstacle Distance:");
+            raspberryPiConsole("OUT OF RANGE");
+            lidarTxt->SetLabel("LiDar Distance: OUT OF RANGE");
+        }
+        else
+        {
+            raspberryPiConsole("Obstacle Distance: " + std::to_string(val2) + "m");
+            lidarTxt->SetLabel(wxString::Format("LiDar Distance: %dm", val2));
+        }
+        setLidarLevel((int)lidVal);
+    }
 }
+                       //0, 100, 40, xWdith, posx
+double MyFrame::Mapping(int a1, int a2, int b1, int b2, int _percentage)
+{
+    return (b1 + (((_percentage)*(b2 - b1)) / (a2 - a1)));
+}
+
+
 
 void MyFrame::leftTurnSignal() {
 	raspberryPiConsole("Turning Left");
@@ -338,6 +388,8 @@ void MyFrame::decreaseSpeed() {
 	tmpSpeed = currentSpeed;
 
 }
+
+
 
 MyFrame::~MyFrame()
 {
