@@ -72,6 +72,7 @@ public:							// Global variables, other function delcarations, etc
     void lidarGaugeSetup();
     void setLidarLevel(int);
     double Mapping(int a1, int a2, int b1, int b2, int _percentage);   //map values 40 to 1386 to a 0-100% range for lidar
+	void IdleEv(wxIdleEvent&);
 
 private:     
 	int brakeLevel;
