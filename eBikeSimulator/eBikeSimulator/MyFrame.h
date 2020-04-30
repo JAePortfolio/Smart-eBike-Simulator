@@ -67,7 +67,7 @@ public:							// Global variables, other function delcarations, etc
     void batteryGaugeSetup();
     void batteryPercentageCharged(wxCommandEvent& );
     void setBatteryPercentage();
-    
+	void IdleEv(wxIdleEvent&);
 private:     
 	int brakeLevel;
 	double digitalThrottleValue = 0.0;

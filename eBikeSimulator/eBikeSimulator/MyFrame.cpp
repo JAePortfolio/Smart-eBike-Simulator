@@ -40,6 +40,8 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	this->SetBackgroundColour(wxColour(*wxWHITE));
     this->Bind(wxEVT_KEY_DOWN,&MyFrame::OnKeyDown,this);
     this->Bind(wxEVT_KEY_UP,&MyFrame::OnKeyUp,this);
+	this->Bind(wxEVT_IDLE, &MyFrame::IdleEv, this);
+
 	//this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
     //this->Connect(wxEVT_KEY_UP, wxKeyEventHandler(MyFrame::OnKeyUp)); //Connects the keyboard event handler to this panel
 	SetFont(wxFont(18, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
@@ -347,6 +349,15 @@ void MyFrame::decreaseSpeed() {
 	currentSpeed = std::max(currentSpeed, 0.0);
 	speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed));
 	tmpSpeed = currentSpeed;
+
+}
+void MyFrame::IdleEv(wxIdleEvent&) {
+	if (brk_lvl > 0) {
+		currentSpeed = std::max(currentSpeed - 2.5, 0.0);
+
+		tmpSpeed = currentSpeed;
+		speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed));
+	}
 
 }
 
