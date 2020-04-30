@@ -19,7 +19,8 @@
 //#include "kwic/LCDWindow.h"
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
-	//EVT_KEY_DOWN(turnLeftEvent)
+	EVT_KEY_DOWN(MyFrame::OnKeyDown)
+    EVT_KEY_UP(MyFrame::OnKeyUp)
 wxEND_EVENT_TABLE()
 
 wxStaticBitmap *image, *bike_rearViewImage, *frontWheel,*keyImage;
@@ -37,8 +38,10 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 
 	//wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1364, 766), wxWANTS_CHARS);
 	this->SetBackgroundColour(wxColour(*wxWHITE));
-	this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
-	this->Connect(wxEVT_KEY_UP, wxKeyEventHandler(MyFrame::OnKeyUp)); //Connects the keyboard event handler to this panel
+    this->Bind(wxEVT_KEY_DOWN,&MyFrame::OnKeyDown,this);
+    this->Bind(wxEVT_KEY_UP,&MyFrame::OnKeyUp,this);
+	//this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
+    //this->Connect(wxEVT_KEY_UP, wxKeyEventHandler(MyFrame::OnKeyUp)); //Connects the keyboard event handler to this panel
 	SetFont(wxFont(18, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
 	//test = new kwxLCDDisplay(this, wxPoint(0, 0), wxSize(100, 100)); Leave disabled
@@ -142,6 +145,15 @@ void MyFrame::setBatteryPercentage(){
     batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));
     raspberryPiConsole("Battery Percentage:"+std::to_string(batteryPercentage)+"%");
     raspberryPiConsole("Battery Voltage:" +std::to_string(batteryVoltage)+"V");
+    if (batteryVoltage<31 && batteryVoltage>30.4){
+        raspberryPiConsole("DC to DC Converter will shut down soon" );
+    }
+  else  if (batteryVoltage<30.4){
+        raspberryPiConsole("DC to DC Converter is OFF" );
+    }
+  else  if (batteryVoltage*(10.7/(10.7+255))<1.224){
+           raspberryPiConsole("RaspberryPi is OFF" );
+       }
 }
 
 void MyFrame::raspberryPiConsole(std::string outputMessage) {
@@ -153,25 +165,25 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
 	//LowerCase ASCII don't work once I have changed the EVENT for KEY DOWN and UP. SO Use uppercase ones
     //wxLogMessage(wxString::Format(wxT("%d"),key));
-    if (key == 76) { // ASCII code of l (lowercase L)
+    if (key == 76 && !isLocked) { // ASCII code of l (lowercase L)
 		leftTurnSignal();
 	}
-	else if (key == 82) { // ASCII code of r
+	else if (key == 82 && !isLocked) { // ASCII code of r
 		rightTurnSignal();
 	}
 
-	else if (key == 72) { // ASCII code of h
+	else if (key == 72 && !isLocked) { // ASCII code of h
 		headlightActivation();
 	}
-    else if (key == 90) // Z for increasing brake level
+    else if (key == 90 && !isLocked) // Z for increasing brake level
     {
         controlBrake(0, brk_lvl + 15);
     }
-    else if (key == 88) //X for decreasing brake level 
+    else if (key == 88 && !isLocked) //X for decreasing brake level
     {
         controlBrake(0, brk_lvl - 15);
     }
-	else if (key == 315) {//ASCI code for up Arrow
+	else if (key == 315 && !isLocked) {//ASCI code for up Arrow
 		if (!upKeyPressed) {
 			upKeyPressed = true;
 			keyPressedTime = clock();
@@ -181,7 +193,7 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 		tmpSpeed = std::min(tmpSpeed, 25.0);
 		speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), tmpSpeed));
 	}
-	else if (key == 317) {//ASCI code for up Arrow
+	else if (key == 317 && !isLocked) {//ASCI code for up Arrow
 		if (!upKeyPressed) {
 			upKeyPressed = true;
 			keyPressedTime = clock();
@@ -202,14 +214,14 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 }
 void MyFrame::OnKeyUp(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
-	if (key == 315) {//ASCI code for up Arrow
+	if (key == 315 && !isLocked) {//ASCI code for up Arrow
 		keyReleasedTime = clock();
 
 		totalKeyPressedTime = double(keyReleasedTime - keyPressedTime) / 1000.0;
 		upKeyPressed = false;
 		increaseSpeed();
 	}
-	else if (key == 317) {//ASCI code for Down Arrow
+	else if (key == 317 && !isLocked) {//ASCI code for Down Arrow
 		keyReleasedTime = clock();
 
 		totalKeyPressedTime = double(keyReleasedTime - keyPressedTime) / 1000.0;
