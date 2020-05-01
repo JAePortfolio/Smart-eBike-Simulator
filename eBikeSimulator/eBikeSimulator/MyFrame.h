@@ -26,14 +26,11 @@ public:							// Global variables, other function delcarations, etc
 	wxButton *m_btn1 = nullptr;
 	wxTextCtrl *m_txt1 = nullptr;
 	wxListBox *raspberryPi = nullptr;
-    //Define names of break pictures ON and OFF
 	wxStaticBitmap *image, *bike_rearViewImage, *brakePicture, *brakeGif;
 	wxStaticText *textForControls;
-	bool headlightOn;
 	wxSlider* throttleSlider;
 	wxStaticText* throttleSliderValue;
 
-	//kwxLCDDisplay* test; Leave disabled
 	wxSpinCtrl* timeElapsed_hours;
 	wxSpinCtrl* timeElapsed_mins;
 	wxStaticText* timeElapsedText;
@@ -41,14 +38,13 @@ public:							// Global variables, other function delcarations, etc
 	wxStaticText* timeElapsedMins;
     wxStaticText* lidarTxt;
 	wxButton* setTimeElapsedButton;
-    //wxGauge* lidarGauge;
 	wxAnimationCtrl* brakingAnim;
 	
 
 	void OnKeyDown(wxKeyEvent& event);
 	void OnKeyUp(wxKeyEvent& event);
-
 	wxDECLARE_EVENT_TABLE();
+
 	void textForControlsSetup();
 	void raspberryPiSetup();
 	void initialImageDisplaySetup();
@@ -63,7 +59,7 @@ public:							// Global variables, other function delcarations, etc
 	void OnThrottleSliderScrolled(wxCommandEvent&);
 	void increaseSpeed();
 	void decreaseSpeed();
-    void keySetup();
+    void keyLockSetup();
     void keyLock();
     void keyUnlock();
     void batteryGaugeSetup();
@@ -71,6 +67,7 @@ public:							// Global variables, other function delcarations, etc
     void setBatteryPercentage();
     void lidarGaugeSetup();
     void setLidarLevel(int);
+	void lidar();
     double Mapping(int a1, int a2, int b1, int b2, int _percentage);   //map values 40 to 1386 to a 0-100% range for lidar
 	void IdleEv(wxIdleEvent&);
 
@@ -83,5 +80,7 @@ private:
 	clock_t keyPressedTime, keyReleasedTime;//to keep track how long Up/Down key was pressed
 	double totalKeyPressedTime;
 	const double bikeAcceleration = 25.0 / 13.0; //Accelearion of bike at FUll throttle
+	bool headlightOn;
+
 };
 
