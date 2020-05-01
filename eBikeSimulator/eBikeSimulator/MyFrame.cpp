@@ -17,11 +17,11 @@
 #include <algorithm>
 #include <wx/gauge.h>
 //#include "kwic/LCDWindow.h"
-
+//#include "kwic/AngularMeter.cpp"
+#include "kwic/LinearMeter.cpp"
 /*
 #include "kwic/LCDWindow.cpp"
-#include "kwic/AngularMeter.cpp"
-#include "kwic/LinearMeter.cpp"
+"
 #include "kwic/LinearRegulator.cpp"
 */
 
@@ -33,10 +33,12 @@ wxEND_EVENT_TABLE()
 wxStaticBitmap *image, *bike_rearViewImage, *frontWheel,*keyImage;
 wxStaticText *textForControls,*batteryPercentageText;
 wxListBox *raspberryPi;
+kwxLinearMeter* batteryGauge;
+kwxLinearMeter* lidarGauge;
 bool headlightOn = false;
 bool isLocked = true;
 int brk_lvl = 0;
-wxGauge *batteryGauge;
+//wxGauge *batteryGauge;
 //kwxLCDDisplay* test; Leave disabled
 int batteryPercentage=100;
 double batteryVoltage=42.0;
@@ -69,23 +71,25 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	// Temporary
 	/*
 	kwxLCDDisplay* test; //Leave disabled
-	kwxLinearMeter* LinMet = new kwxLinearMeter(this, wxID_ANY, wxPoint(200, 200), wxSize(100, 100));
 	test = new kwxLCDDisplay(this, wxPoint(200, 500), wxSize(100, 100)); //Leave disabled
 	kwxLinearRegulator* linreg = new kwxLinearRegulator(this, -1, wxPoint(200, 400), wxSize(100, 100));
-	kwxAngularMeter* angmet = new kwxAngularMeter(this, wxID_ANY, wxPoint(0, 500), wxSize(200, 200));
 
 	test->SetValue(wxString("11"));
 	LinMet->SetValue(10);
 	LinMet->SetActiveBarColour(wxColour(*wxRED));
 	*/
+	//kwxAngularMeter* angmet = new kwxAngularMeter(this, wxID_ANY, wxPoint(0, 500), wxSize(200, 200));
+
 }
 
 void MyFrame::lidarGaugeSetup()
 {
-    lidarGauge = new wxGauge(this, wxID_ANY, 100, wxPoint(10, 300), wxSize(200, 50));
-    lidarTxt = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("LiDar Distance: %dm"), 0), wxPoint(10, 350), wxSize(200, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+    lidarGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(1065, 502), wxSize(255, 50));
+    lidarTxt = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("LiDar Distance: %dm"), 0), wxPoint(1065, 520), wxSize(200, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
     lidarTxt->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
     lidarGauge->SetValue(0);
+	lidarGauge->SetRangeVal(0, 40);
+	lidarGauge->SetBorderColour(*wxBLACK);
 }
 
 void MyFrame::setLidarLevel(int val)
@@ -107,10 +111,13 @@ void MyFrame::keyUnlock() {
     isLocked=false;
 }
 void MyFrame::batteryGaugeSetup() {
-    batteryGauge= new wxGauge(this, wxID_ANY, 100, wxPoint(275, 72), wxSize(200, 50) );
+	batteryGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(275, 72), wxSize(200, 50));
+	//batteryGauge= new wxGauge(this, wxID_ANY, 100, wxPoint(275, 72), wxSize(200, 50) );
     batteryPercentageText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Battery level: %d%%"), batteryPercentage), wxPoint(285, 123), wxSize(200, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
     batteryPercentageText->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
     batteryGauge->SetValue(batteryPercentage);
+	batteryGauge->SetBorderColour(*wxBLACK);
+
 }
 void MyFrame::textForControlsSetup() {
 	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 575), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
@@ -180,6 +187,20 @@ void MyFrame::batteryPercentageCharged(wxCommandEvent& ) {
     
 }
 void MyFrame::setBatteryPercentage(){
+	if (batteryPercentage > 66) {
+		batteryGauge->SetActiveBarColour(*wxGREEN);
+	}
+	else if (batteryPercentage <= 66 && batteryPercentage > 33) {
+		batteryGauge->SetActiveBarColour(*wxYELLOW);
+	}
+	else if (batteryPercentage <= 33) {
+		batteryGauge->SetActiveBarColour(*wxRED);
+	}
+	else {
+		wxLogWarning(wxT("Improper Battery Percentage value"));
+	}
+
+
     batteryGauge->SetValue(batteryPercentage);
     batteryPercentageText->SetLabel(wxString::Format(wxT("Battery level: %d%%"), batteryPercentage));
     batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));

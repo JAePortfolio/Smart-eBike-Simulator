@@ -41,7 +41,7 @@ public:							// Global variables, other function delcarations, etc
 	wxStaticText* timeElapsedMins;
     wxStaticText* lidarTxt;
 	wxButton* setTimeElapsedButton;
-    wxGauge* lidarGauge;
+    //wxGauge* lidarGauge;
 	wxAnimationCtrl* brakingAnim;
 	
 
