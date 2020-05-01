@@ -76,12 +76,12 @@ public:							// Global variables, other function delcarations, etc
 
 private:     
 	int brakeLevel;
-	double digitalThrottleValue = 0.0;
-	double currentSpeed,tmpSpeed = 0.0;
+	double digitalThrottleValue = 0.0; //Digital Throttle Value from 0 to 1024
+	double currentSpeed,tmpSpeed = 0.0; //current speed and temporary speed 
 	wxStaticText* speedText;//Temporary Speed Display
 	bool upKeyPressed = false;
-	clock_t keyPressedTime, keyReleasedTime;
+	clock_t keyPressedTime, keyReleasedTime;//to keep track how long Up/Down key was pressed
 	double totalKeyPressedTime;
-	const double bikeAcceleration = 25.0 / 13.0;
+	const double bikeAcceleration = 25.0 / 13.0; //Accelearion of bike at FUll throttle
 };
 

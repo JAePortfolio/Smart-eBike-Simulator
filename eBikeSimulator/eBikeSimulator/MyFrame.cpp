@@ -18,6 +18,13 @@
 #include <wx/gauge.h>
 //#include "kwic/LCDWindow.h"
 
+/*
+#include "kwic/LCDWindow.cpp"
+#include "kwic/AngularMeter.cpp"
+#include "kwic/LinearMeter.cpp"
+#include "kwic/LinearRegulator.cpp"
+*/
+
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_KEY_DOWN(MyFrame::OnKeyDown)
     EVT_KEY_UP(MyFrame::OnKeyUp)
@@ -57,6 +64,20 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
     keySetup();
     batteryGaugeSetup();
     lidarGaugeSetup();
+
+
+	// Temporary
+	/*
+	kwxLCDDisplay* test; //Leave disabled
+	kwxLinearMeter* LinMet = new kwxLinearMeter(this, wxID_ANY, wxPoint(200, 200), wxSize(100, 100));
+	test = new kwxLCDDisplay(this, wxPoint(200, 500), wxSize(100, 100)); //Leave disabled
+	kwxLinearRegulator* linreg = new kwxLinearRegulator(this, -1, wxPoint(200, 400), wxSize(100, 100));
+	kwxAngularMeter* angmet = new kwxAngularMeter(this, wxID_ANY, wxPoint(0, 500), wxSize(200, 200));
+
+	test->SetValue(wxString("11"));
+	LinMet->SetValue(10);
+	LinMet->SetActiveBarColour(wxColour(*wxRED));
+	*/
 }
 
 void MyFrame::lidarGaugeSetup()
@@ -126,13 +147,14 @@ void MyFrame::initialImageDisplaySetup() {
 
 }
 void MyFrame::throttleTextSetup() {
-	//Throttle 
+	//Throttle Slider Setup
 	throttleSlider = new wxSlider(this, wxID_ANY, 0, 0, 35, wxPoint(1025, 574), wxSize(20, 150), wxSL_VERTICAL | wxSL_INVERSE);
+	//Throttle Text and Voltage Value Text
 	wxStaticText* throttleText = new wxStaticText(this, wxID_ANY, "T\nh\nr\no\nt\nt\nl\ne", wxPoint(1045, 585), wxDefaultSize, wxALIGN_CENTER);
-	throttleText->SetFont(wxFont(10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	throttleText->SetFont(wxFont(10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL)); //Font,Size Setup
 	throttleSliderValue = new wxStaticText(this, wxID_ANY, "0.7", wxPoint(1010, 649), wxDefaultSize, wxALIGN_TOP);
 	throttleSliderValue->SetFont(wxFont(8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	throttleSlider->Bind(wxEVT_SLIDER, &MyFrame::OnThrottleSliderScrolled, this);
+	throttleSlider->Bind(wxEVT_SLIDER, &MyFrame::OnThrottleSliderScrolled, this);//function will be executed when slider is scrolled
 	//temporary Speed Display
 	speedText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed), wxPoint(43, 623), wxDefaultSize, wxALIGN_TOP);
 }
@@ -210,12 +232,12 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 		tmpSpeed = std::min(tmpSpeed, 25.0);
 		speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), tmpSpeed));
 	}
-	else if (key == 317 && !isLocked) {//ASCI code for up Arrow
+	else if (key == 317 && !isLocked) {//ASCI code for down Arrow
 		if (!upKeyPressed) {
 			upKeyPressed = true;
 			keyPressedTime = clock();
 		}
-		//Temporarily keep increasing speed until key is released
+		//Temporarily keep decreasing speed until key is released
 		tmpSpeed = tmpSpeed-(bikeAcceleration* (1-(digitalThrottleValue / 1024.0))*(1.0 / 31.0)) ;
 		tmpSpeed = std::max(tmpSpeed, 0.0);
 		speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), tmpSpeed));
