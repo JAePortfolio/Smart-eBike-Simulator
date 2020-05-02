@@ -31,7 +31,7 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_KEY_UP(MyFrame::OnKeyUp)
 wxEND_EVENT_TABLE()
 
-wxStaticBitmap *image, *bike_rearViewImage, *frontWheel,*keyImage;
+wxStaticBitmap *bike_sideViewImage, *bike_rearViewImage, *frontWheel,*keyImage;
 wxStaticText *textForControls,*batteryPercentageText;
 wxListBox *raspberryPi;
 kwxLinearMeter* batteryGauge;
@@ -80,12 +80,11 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 }
 
 void MyFrame::initialImageDisplaySetup() {
-	image = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means parent directory, where the SLN file is
+	bike_sideViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means parent directory, where the SLN file is
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
-	brakePicture = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 	brakingAnim = new wxAnimationCtrl(this, wxID_ANY, wxAnimation(wxT("../eBikeSimulator/gifs/bike_braking.gif")), wxPoint(895, 24), wxSize(426, 143));
-	brakeGif = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // How is this a GIF?
-
+	bike_wheelAnim = new wxAnimationCtrl(this, wxID_ANY, wxAnimation(wxT("../eBikeSimulator/gifs/bike_wheel.gif")), wxPoint(43, 383), wxSize(192,192));
+	bike_wheelAnim->Play(true);
 }
 void MyFrame::textForControlsSetup() {
 	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 575), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
@@ -150,8 +149,8 @@ void MyFrame::batteryGaugeSetup() {
 }
 void MyFrame::lidarGaugeSetup()
 {
-    lidarGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(1065, 502), wxSize(255, 50));
-    lidarTxt = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("LiDar Distance: %dm"), 0), wxPoint(1065, 520), wxSize(200, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+    lidarGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(1065, 520), wxSize(255, 50));
+    lidarTxt = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("LiDar Distance: %dm"), 0), wxPoint(1065, 490), wxSize(200, 30), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
     lidarTxt->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
     lidarGauge->SetValue(0);
 	lidarGauge->SetRangeVal(0, 40);
@@ -277,13 +276,13 @@ void MyFrame::headlightActivation() {
 	if (headlightOn == false) {
 		raspberryPiConsole("Headlight ON");
 		headlightOn = !headlightOn;
-		image->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint_headlight.png"), wxBITMAP_TYPE_PNG));
+		bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint_headlight.png"), wxBITMAP_TYPE_PNG));
 		Update();
 	}
 	else if (headlightOn == true) {
 		raspberryPiConsole("Headlight OFF");
 		headlightOn = !headlightOn;
-		image->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG));
+		bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG));
 		Update();
 	}
 }
@@ -327,15 +326,15 @@ void MyFrame::SetBrakePicture(bool _bstatus)
 	if (_bstatus)
 	{
 		// optional blueprint image with light in the back on
-		brakeGif->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprintbrake.png"), wxBITMAP_TYPE_PNG));
-		brakePicture->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon.png"), wxBITMAP_TYPE_PNG));
+		bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprintbrake.png"), wxBITMAP_TYPE_PNG));
+		bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon.png"), wxBITMAP_TYPE_PNG));
 		Update();
 		brakingAnim->Play(true);
 	}
 	else
 	{
-		brakeGif->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG));
-		brakePicture->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brake.png"), wxBITMAP_TYPE_PNG));
+		bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG));
+		bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brake.png"), wxBITMAP_TYPE_PNG));
 		Update();
 		brakingAnim->Play(false);
 	}

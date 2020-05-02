@@ -26,7 +26,7 @@ public:							// Global variables, other function delcarations, etc
 	wxButton *m_btn1 = nullptr;
 	wxTextCtrl *m_txt1 = nullptr;
 	wxListBox *raspberryPi = nullptr;
-	wxStaticBitmap *image, *bike_rearViewImage, *brakePicture, *brakeGif;
+	wxStaticBitmap *bike_sideViewImage, *bike_rearViewImage, *brakePicture, *brakeGif;
 	wxStaticText *textForControls;
 	wxSlider* throttleSlider;
 	wxStaticText* throttleSliderValue;
@@ -39,6 +39,7 @@ public:							// Global variables, other function delcarations, etc
     wxStaticText* lidarTxt;
 	wxButton* setTimeElapsedButton;
 	wxAnimationCtrl* brakingAnim;
+	wxAnimationCtrl* bike_wheelAnim;
 	
 
 	void OnKeyDown(wxKeyEvent& event);
