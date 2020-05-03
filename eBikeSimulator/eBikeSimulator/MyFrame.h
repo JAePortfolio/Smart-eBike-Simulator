@@ -67,10 +67,13 @@ public:							// Global variables, other function delcarations, etc
     void batteryPercentageCharged(wxCommandEvent& );
     void setBatteryPercentage();
     void lidarGaugeSetup();
+	void speedometerSetup();
+	void speedometerUpdate(double speed);
     void setLidarLevel(int);
 	void lidar();
     double Mapping(int a1, int a2, int b1, int b2, int _percentage);   //map values 40 to 1386 to a 0-100% range for lidar
 	void IdleEv(wxIdleEvent&);
+	void speedBrake();
 
 private:     
 	int brakeLevel;
@@ -79,8 +82,10 @@ private:
 	wxStaticText* speedText;//Temporary Speed Display
 	bool upKeyPressed = false;
 	clock_t keyPressedTime, keyReleasedTime;//to keep track how long Up/Down key was pressed
+	clock_t ntime1, ntime2;
 	double totalKeyPressedTime;
 	const double bikeAcceleration = 25.0 / 13.0; //Accelearion of bike at FUll throttle
+	const double analogToDigitalRatio = 35.0 / 1024.0;
 	bool headlightOn;
 
 };

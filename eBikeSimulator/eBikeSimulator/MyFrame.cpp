@@ -17,9 +17,9 @@
 #include <algorithm>
 #include <wx/gauge.h>
 #include "kwic/LinearMeter.cpp"
+#include "kwic/AngularMeter.cpp"
 
 //#include "kwic/LCDWindow.h"
-//#include "kwic/AngularMeter.cpp"
 /*
 #include "kwic/LCDWindow.cpp"
 "
@@ -36,6 +36,8 @@ wxStaticText *textForControls,*batteryPercentageText;
 wxListBox *raspberryPi;
 kwxLinearMeter* batteryGauge;
 kwxLinearMeter* lidarGauge;
+kwxAngularMeter* speedometer;
+wxStaticText *speedometerText, *speedValueText;
 bool headlightOn = false;
 bool isLocked = true;
 int brk_lvl = 0;
@@ -64,18 +66,8 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 	timeElapsedSetup();
     batteryGaugeSetup();
     lidarGaugeSetup();
+	speedometerSetup();
 
-	// Temporary
-	/*
-	kwxLCDDisplay* test; //Leave disabled
-	test = new kwxLCDDisplay(this, wxPoint(200, 500), wxSize(100, 100)); //Leave disabled
-	kwxLinearRegulator* linreg = new kwxLinearRegulator(this, -1, wxPoint(200, 400), wxSize(100, 100));
-
-	test->SetValue(wxString("11"));
-	LinMet->SetValue(10);
-	LinMet->SetActiveBarColour(wxColour(*wxRED));
-	*/
-	//kwxAngularMeter* angmet = new kwxAngularMeter(this, wxID_ANY, wxPoint(0, 500), wxSize(200, 200));
 
 }
 
@@ -112,8 +104,6 @@ void MyFrame::raspberryPiSetup() {
 	raspberryPi->SetFont(wxFont(13, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	raspberryPi->SetBackgroundColour(*wxBLACK);
 	raspberryPi->SetForegroundColour(*wxWHITE);
-	raspberryPiConsole("Raspberry Pi: ON");
-	raspberryPiConsole("Blynk Initialized");
 }
 void MyFrame::throttleTextSetup() {
 	//Throttle Slider Setup
@@ -124,8 +114,6 @@ void MyFrame::throttleTextSetup() {
 	throttleSliderValue = new wxStaticText(this, wxID_ANY, "0.7", wxPoint(1010, 649), wxDefaultSize, wxALIGN_TOP);
 	throttleSliderValue->SetFont(wxFont(8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	throttleSlider->Bind(wxEVT_SLIDER, &MyFrame::OnThrottleSliderScrolled, this);//function will be executed when slider is scrolled
-	//temporary Speed Display
-	speedText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed), wxPoint(43, 623), wxDefaultSize, wxALIGN_TOP);
 }
 void MyFrame::timeElapsedSetup() {
 	timeElapsedText = new wxStaticText(this, wxID_ANY, "Time Elapsed:", wxPoint(341, 650), wxDefaultSize, wxALIGN_TOP);
@@ -155,6 +143,30 @@ void MyFrame::lidarGaugeSetup()
     lidarGauge->SetValue(0);
 	lidarGauge->SetRangeVal(0, 40);
 	lidarGauge->SetBorderColour(*wxBLACK);
+}
+
+//Speedometer Setup
+void MyFrame::speedometerSetup() {
+	speedometerText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed"), 0), wxPoint(79, 575));
+
+	speedometer = new kwxAngularMeter(this, wxID_ANY, wxPoint(25, 600), wxSize(180, 180));
+	speedometer->SetRange(0, 25);
+	speedometer->SetNumSectors(3);
+	speedometer->SetNeedleColour(*wxBLUE);
+	speedometer->SetSectorColor(0, *wxGREEN);
+	speedometer->SetSectorColor(1, *wxYELLOW);
+	speedometer->SetSectorColor(2, *wxRED);
+	speedometer->SetNumTick(5);
+	speedValueText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("%.1f"), currentSpeed), wxPoint(100, 700), wxSize(35, 100));
+	speedValueText->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+
+}
+//Updates Speedometer Value
+void MyFrame::speedometerUpdate(double speed) {
+	speedometer->SetValue(speed);
+	speedValueText->SetLabelText(wxString::Format(wxT("%.1f"), speed));
+	speedValueText->Refresh();
+
 }
 
 void MyFrame::OnKeyDown(wxKeyEvent& event) {
@@ -187,7 +199,7 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 		//Temporarily keep increasing speed until key is released
 		tmpSpeed = (bikeAcceleration* (digitalThrottleValue / 1024.0)*(1.0 / 31.0)) + tmpSpeed;
 		tmpSpeed = std::min(tmpSpeed, 25.0);
-		speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), tmpSpeed));
+		speedometerUpdate(tmpSpeed);
 	}
 	else if (key == 317 && !isLocked) {//ASCI code for down Arrow
 		if (!upKeyPressed) {
@@ -197,7 +209,7 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 		//Temporarily keep decreasing speed until key is released
 		tmpSpeed = tmpSpeed - (bikeAcceleration* (1 - (digitalThrottleValue / 1024.0))*(1.0 / 31.0));
 		tmpSpeed = std::max(tmpSpeed, 0.0);
-		speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), tmpSpeed));
+		speedometerUpdate(tmpSpeed);
 	}
 	else if (key == 75) {//ASCI code for k
 		if (isLocked) {
@@ -345,28 +357,41 @@ void MyFrame::SetBrakePicture(bool _bstatus)
 void MyFrame::keyLock() {
 	keyImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/key_lock.png"), wxBITMAP_TYPE_PNG));
 	isLocked = true;
+	raspberryPiConsole("Raspberry Pi is Shutting Down");
+	std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Wait 2 second
+	raspberryPi->Clear();//Clear Raspberry Pi messages
+	initialImageDisplaySetup();
+
+	
 }
 void MyFrame::keyUnlock() {
 	keyImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/key_unlock.png"), wxBITMAP_TYPE_PNG));
 	isLocked = false;
+	raspberryPiConsole("Raspberry Pi: ON");
+	raspberryPiConsole("Blynk Initialized");
 }
 
 void MyFrame::OnThrottleSliderScrolled(wxCommandEvent&) {
+	// Each time Slider is scrolled display the current voltage and change digital throttle value
 	double currValue = double(throttleSlider->GetValue()) / 10 + 0.7;
-	digitalThrottleValue = (((float)currValue - 0.7) / .00341796875) + 1;
+	digitalThrottleValue = (((float)currValue - 0.7) / analogToDigitalRatio) + 1;
 	throttleSliderValue->SetLabel(wxString::Format(wxT("%.1f"), currValue));
 
 }
 void MyFrame::increaseSpeed() {
+	//Increase speed based on total time key was pressed for and current throttle value
 	currentSpeed = currentSpeed + (bikeAcceleration * (digitalThrottleValue / 1024.0)*totalKeyPressedTime);
 	currentSpeed = std::min(currentSpeed, 25.0);
-	speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed));
+	//Display Current speed value
+	speedometerUpdate(currentSpeed);
 	tmpSpeed = currentSpeed;
 }
 void MyFrame::decreaseSpeed() {
+	//Decrease speed based on total time key was pressed for and current throttle value
 	currentSpeed = currentSpeed - (bikeAcceleration * (1 - (digitalThrottleValue / 1024.0))*totalKeyPressedTime);
 	currentSpeed = std::max(currentSpeed, 0.0);
-	speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed));
+	//Display Current speed value
+	speedometerUpdate(currentSpeed);
 	tmpSpeed = currentSpeed;
 }
 
@@ -437,12 +462,34 @@ void MyFrame::setBatteryPercentage(){
 }
 
 void MyFrame::IdleEv(wxIdleEvent&) {
-	if (brk_lvl > 0) {
-		currentSpeed = std::max(currentSpeed - 2.5, 0.0);
-
-		tmpSpeed = currentSpeed;
-		speedText->SetLabel(wxString::Format(wxT("Speed: %.1f MPH"), currentSpeed));
+	ntime2 = clock();
+	if (ntime2 - ntime1 >= 500) { //Updates every 0.5 seconds 
+		if (brk_lvl > 0) speedBrake();
+		ntime1 = ntime2;
 	}
+}
+void MyFrame::speedBrake() {
+	//Brakes the bike reducing the speed with different rate based on brake level
+	switch (brk_lvl) {
+	case 15:currentSpeed = std::max(currentSpeed - 1.5, 0.0);
+		break;
+	case 30:currentSpeed = std::max(currentSpeed - 2, 0.0);
+		break;
+	case 45:currentSpeed = std::max(currentSpeed - 2.5, 0.0);
+		break;
+	case 60:currentSpeed = std::max(currentSpeed - 2.75, 0.0);
+		break;
+	case 75:currentSpeed = std::max(currentSpeed - 3, 0.0);
+		break;
+	case 90:currentSpeed = std::max(currentSpeed - 3.5, 0.0);
+		break;
+	case 105:currentSpeed = std::max(currentSpeed - 4, 0.0);
+		break;
+	}
+
+	tmpSpeed = currentSpeed;
+	speedometerUpdate(currentSpeed);
+
 }
 
 
