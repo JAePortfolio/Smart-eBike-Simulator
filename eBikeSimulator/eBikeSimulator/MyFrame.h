@@ -85,7 +85,7 @@ private:
 	clock_t ntime1, ntime2;
 	double totalKeyPressedTime;
 	const double bikeAcceleration = 25.0 / 13.0; //Accelearion of bike at FUll throttle
-	const double analogToDigitalRatio = 35.0 / 1024.0;
+	const double analogToDigitalRatio = 3.50 / 1024.0;
 	bool headlightOn;
 
 };
