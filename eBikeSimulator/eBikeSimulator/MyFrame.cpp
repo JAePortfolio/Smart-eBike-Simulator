@@ -139,7 +139,7 @@ void MyFrame::lidarGaugeSetup()
 {
     lidarGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(1065, 520), wxSize(255, 50));
     lidarTxt = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("LiDar Distance: %dm"), 0), wxPoint(1065, 490), wxSize(200, 30), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-    lidarTxt->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
+    lidarTxt->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
     lidarGauge->SetValue(0);
 	lidarGauge->SetRangeVal(0, 40);
 	lidarGauge->SetBorderColour(*wxBLACK);
@@ -241,7 +241,7 @@ void MyFrame::OnKeyUp(wxKeyEvent& event) {
 
 	// If c is pressed then take cursor's value and update lidar.
 	//It's like Lidar is ON when c is pressed.
-	else if (key == 99 && !isLocked) // ASCII code for c 
+    else if (key == 67 && !isLocked) // ASCII code for c 
 	{
 		lidar();
 	}
@@ -406,7 +406,7 @@ void MyFrame::lidar() {
 	{
 		raspberryPiConsole("Obstacle Distance:");
 		raspberryPiConsole("OUT OF RANGE");
-		lidarTxt->SetLabel("LiDar Distance: OUT OF RANGE");
+		lidarTxt->SetLabel("LiDar Dist: OUT OF RANGE");
 	}
 	else
 	{
@@ -448,6 +448,7 @@ void MyFrame::setBatteryPercentage(){
 
     batteryGauge->SetValue(batteryPercentage);
     batteryPercentageText->SetLabel(wxString::Format(wxT("Battery level: %d%%"), batteryPercentage));
+    batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));
     batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));
     raspberryPiConsole("Battery Percentage:"+std::to_string(batteryPercentage)+"%");
     raspberryPiConsole("Battery Voltage:" +std::to_string(batteryVoltage)+"V");
