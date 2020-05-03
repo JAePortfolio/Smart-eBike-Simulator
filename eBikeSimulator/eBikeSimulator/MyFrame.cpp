@@ -18,6 +18,8 @@
 #include <wx/gauge.h>
 #include "kwic/LinearMeter.cpp"
 #include "kwic/AngularMeter.cpp"
+#include "/Users/ionutrotariu/Documents/wxWidgets-3.1.3/include/kwic/LinearMeter.cpp"
+#include "/Users/ionutrotariu/Documents/wxWidgets-3.1.3/include/kwic/AngularMeter.cpp"
 
 //#include "kwic/LCDWindow.h"
 /*
