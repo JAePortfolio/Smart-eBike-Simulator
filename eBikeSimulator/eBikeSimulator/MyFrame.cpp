@@ -18,8 +18,8 @@
 #include <wx/gauge.h>
 #include "kwic/LinearMeter.cpp"
 #include "kwic/AngularMeter.cpp"
-#include "/Users/ionutrotariu/Documents/wxWidgets-3.1.3/include/kwic/LinearMeter.cpp"
-#include "/Users/ionutrotariu/Documents/wxWidgets-3.1.3/include/kwic/AngularMeter.cpp"
+//#include "/Users/ionutrotariu/Documents/wxWidgets-3.1.3/include/kwic/LinearMeter.cpp"
+//#include "/Users/ionutrotariu/Documents/wxWidgets-3.1.3/include/kwic/AngularMeter.cpp"
 
 //#include "kwic/LCDWindow.h"
 /*
@@ -91,9 +91,9 @@ void MyFrame::textForControlsSetup() {
 	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 660), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "Z-BrakeIncr + 15%", wxPoint(1065, 680), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls = new wxStaticText(this, wxID_ANY, "Z-BrakeIncr + 25%", wxPoint(1065, 680), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "X-BrakeDecr - 15%", wxPoint(1065, 700), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls = new wxStaticText(this, wxID_ANY, "X-BrakeDecr - 25%", wxPoint(1065, 700), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 }
 void MyFrame::keyLockSetup() {
@@ -187,11 +187,13 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 	}
 	else if (key == 90 && !isLocked) // Z for increasing brake level
 	{
-		controlBrake(0, brk_lvl + 15);
+        brk_lvl += 25;
+		controlBrake(0,brk_lvl );
 	}
 	else if (key == 88 && !isLocked) //X for decreasing brake level
 	{
-		controlBrake(0, brk_lvl - 15);
+        brk_lvl -= 25;
+		controlBrake(0, brk_lvl);
 	}
 	else if (key == 315 && !isLocked) {//ASCII code for up Arrow
 		if (!upKeyPressed) {
@@ -221,6 +223,12 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 			keyLock();
 		}
 	}
+    // If c is pressed then take cursor's value and update lidar.
+    //It's like Lidar is ON when c is pressed.
+    else if (key == 67 && !isLocked) // ASCII code for c 
+    {
+        lidar();
+    }
 
 }
 void MyFrame::OnKeyUp(wxKeyEvent& event) {
@@ -243,10 +251,10 @@ void MyFrame::OnKeyUp(wxKeyEvent& event) {
 
 	// If c is pressed then take cursor's value and update lidar.
 	//It's like Lidar is ON when c is pressed.
-    else if (key == 67 && !isLocked) // ASCII code for c 
+   /* else if (key == 67 && !isLocked) // ASCII code for c 
 	{
 		lidar();
-	}
+	}*/
 }
 
 void MyFrame::raspberryPiConsole(std::string outputMessage) {
@@ -303,35 +311,23 @@ void MyFrame::headlightActivation() {
 
 void MyFrame::controlBrake(int _throttle, int _brake)
 {
-	if (brk_lvl < _brake)
+	if (brk_lvl > 100)
 	{
-		if (brk_lvl > 100)
-		{
-			_brake = 100;
-			SetBrakePicture(true);
-			return;
-		}
-		brk_lvl = _brake;
-	}
-	else
-	{
-		if (brk_lvl <= 0)
-		{
-			SetBrakePicture(false);
-			return;
-		}
-		brk_lvl = _brake;
-	}
-
-
-	if (brk_lvl > 0)
-	{
+		brk_lvl = 100;
 		SetBrakePicture(true);
+		return;
 	}
-	else
+	else if (brk_lvl <= 0)
 	{
+        brk_lvl = 0;
 		SetBrakePicture(false);
+		return;
 	}
+    else
+    {
+        SetBrakePicture(true);
+        return;
+    }
 }
 
 void MyFrame::SetBrakePicture(bool _bstatus)
@@ -397,18 +393,24 @@ void MyFrame::decreaseSpeed() {
 	tmpSpeed = currentSpeed;
 }
 
-void MyFrame::lidar() {
+void MyFrame::lidar()
+{
+   const wxPoint pt = wxGetMousePosition();
+   int mouseX = pt.x - this->GetScreenPosition().x;
+   if (mouseX > 490) mouseX = 490;
 	double lidVal; //0-100;
-	POINT point;
-	GetCursorPos(&point);   //40 - 1386 range of x values on the screen
-	lidVal = Mapping(40, xWidth, 100, 0, point.x);
-	int val2 = (int)Mapping(40, xWidth, 0, 40, point.x);
+   // POINT point;
+   //	GetCursorPos(&point);   //40 - 1386 range of x values on the screen
+	lidVal = Mapping(40, 490, 40, 0, mouseX);//point.x
+	int val2 = (int)Mapping(40, 490, 40, 0, mouseX);
+    if (val2 < 0) val2 = 0;
 	if (lidVal < 0) lidVal = 0;
 	if (val2 > 40)
 	{
 		raspberryPiConsole("Obstacle Distance:");
 		raspberryPiConsole("OUT OF RANGE");
-		lidarTxt->SetLabel("LiDar Dist: OUT OF RANGE");
+		lidarTxt->SetLabel("LiDar Dst:OUT OF RANGE");
+        
 	}
 	else
 	{
@@ -423,6 +425,19 @@ double MyFrame::Mapping(int a1, int a2, int b1, int b2, int _percentage)
 }
 void MyFrame::setLidarLevel(int val)
 {
+    if (val> 30)
+    {
+        lidarGauge->SetActiveBarColour(*wxGREEN);
+    }
+    else if (val <= 30 && val  >= 15)
+    {
+        lidarGauge->SetActiveBarColour(*wxYELLOW);
+    }
+    else
+    {
+        lidarGauge->SetActiveBarColour(*wxRED);
+    }
+    if (val < 2) val = 2;
     lidarGauge->SetValue(val);
 }
 
@@ -474,19 +489,13 @@ void MyFrame::IdleEv(wxIdleEvent&) {
 void MyFrame::speedBrake() {
 	//Brakes the bike reducing the speed with different rate based on brake level
 	switch (brk_lvl) {
-	case 15:currentSpeed = std::max(currentSpeed - 1.5, 0.0);
+	case 25:currentSpeed = std::max(currentSpeed - 1.5, 0.0);
 		break;
-	case 30:currentSpeed = std::max(currentSpeed - 2, 0.0);
-		break;
-	case 45:currentSpeed = std::max(currentSpeed - 2.5, 0.0);
-		break;
-	case 60:currentSpeed = std::max(currentSpeed - 2.75, 0.0);
+	case 50:currentSpeed = std::max(currentSpeed - 2.5, 0.0);
 		break;
 	case 75:currentSpeed = std::max(currentSpeed - 3, 0.0);
 		break;
-	case 90:currentSpeed = std::max(currentSpeed - 3.5, 0.0);
-		break;
-	case 105:currentSpeed = std::max(currentSpeed - 4, 0.0);
+	case 100:currentSpeed = std::max(currentSpeed - 4, 0.0);
 		break;
 	}
 
