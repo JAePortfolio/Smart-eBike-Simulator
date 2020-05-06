@@ -47,6 +47,7 @@ int batteryPercentage=100;
 double batteryVoltage=42.0;
 int xWidth = 1366;
 int yWidth = 768;
+bool doSimulate = false;
 
 MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(xWidth, yWidth), wxDEFAULT_FRAME_STYLE & ~wxMAXIMIZE_BOX){
 
@@ -126,8 +127,22 @@ void MyFrame::timeElapsedSetup() {
 	timeElapsed_hours = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(527, 650), wxSize(60, 40));
 	timeElapsed_hours->SetRange(0, 3);
 	setTimeElapsedButton = new wxButton(this, wxID_ANY, "Set Time", wxPoint(341, 685), wxDefaultSize); // Functionality needs to be connected to this button 
-	  //batteryPercentageCharged();
-	setTimeElapsedButton->Bind(wxEVT_BUTTON, &MyFrame::batteryPercentageCharged, this);
+	setTimeElapsedButton->Bind(wxEVT_BUTTON, &MyFrame::batteryPercentageCharged, this);//Binding for setTime Button
+
+	simulateButton = new wxButton(this, wxID_ANY, "Simulate", wxPoint(341, 610), wxDefaultSize); // button for simulate 
+	simulateButton->Bind(wxEVT_BUTTON, &MyFrame::simulateButtonClicked, this);
+
+	
+}
+void MyFrame::simulateButtonClicked(wxCommandEvent&) {
+	if (!isLocked && !doSimulate) {
+		doSimulate = true;
+		simulateButton->SetLabel("Stop");
+	}
+	else if (!isLocked && doSimulate) {
+		doSimulate = false;
+		simulateButton->SetLabel("Simulate");
+	}
 }
 void MyFrame::batteryGaugeSetup() {
 	batteryGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(275, 72), wxSize(200, 50));
@@ -195,24 +210,26 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
         brk_lvl -= 25;
 		controlBrake(0, brk_lvl);
 	}
-	else if (key == 315 && !isLocked) {//ASCII code for up Arrow
+	else if (key == 315 && !isLocked && brk_lvl==0) {//ASCII code for up Arrow
+		// won't work if braking
 		if (!upKeyPressed) {
 			upKeyPressed = true;
 			keyPressedTime = clock();
 		}
 		//Temporarily keep increasing speed until key is released
 		tmpSpeed = (bikeAcceleration* (digitalThrottleValue / 1024.0)*(1.0 / 31.0)) + tmpSpeed;
-		tmpSpeed = std::min(tmpSpeed, 25.0);
+		tmpSpeed = std::min(tmpSpeed, (25.0 / 1024.0)*digitalThrottleValue);//Sets the highest speed limit based on throttle postion
 		speedometerUpdate(tmpSpeed);
 	}
-	else if (key == 317 && !isLocked) {//ASCI code for down Arrow
+	else if (key == 317 && !isLocked && brk_lvl == 0) {//ASCI code for down Arrow
+		// won't work if braking
 		if (!upKeyPressed) {
 			upKeyPressed = true;
 			keyPressedTime = clock();
 		}
 		//Temporarily keep decreasing speed until key is released
 		tmpSpeed = tmpSpeed - (bikeAcceleration* (1 - (digitalThrottleValue / 1024.0))*(1.0 / 31.0));
-		tmpSpeed = std::max(tmpSpeed, 0.0);
+		tmpSpeed = std::max(tmpSpeed, (25.0 / 1024.0)*digitalThrottleValue);//Sets the lowest speed limit based on throttle postion
 		speedometerUpdate(tmpSpeed);
 	}
 	else if (key == 75) {//ASCI code for k
@@ -233,17 +250,18 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
 }
 void MyFrame::OnKeyUp(wxKeyEvent& event) {
 	wxChar key = event.GetKeyCode();
-	if (key == 315 && !isLocked) {//ASCII code for up Arrow
-
+	if (key == 315 && !isLocked && brk_lvl == 0) {//ASCII code for up Arrow
+		// won't work if braking
 		keyReleasedTime = clock();
 
 		totalKeyPressedTime = double(keyReleasedTime - keyPressedTime) / 1000.0;
 		upKeyPressed = false;
 		increaseSpeed();
 	}
-	else if (key == 317 && !isLocked) {//ASCII code for Down Arrow
-		keyReleasedTime = clock();
+	else if (key == 317 && !isLocked && brk_lvl == 0) {//ASCII code for Down Arrow
+		// won't work if braking
 
+		keyReleasedTime = clock();
 		totalKeyPressedTime = double(keyReleasedTime - keyPressedTime) / 1000.0;
 		upKeyPressed = false;
 		decreaseSpeed();
@@ -359,6 +377,7 @@ void MyFrame::keyLock() {
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Wait 2 second
 	raspberryPi->Clear();//Clear Raspberry Pi messages
 	initialImageDisplaySetup();
+	speedometerUpdate(0);// Turn off Speedometer
 
 	
 }
@@ -379,7 +398,7 @@ void MyFrame::OnThrottleSliderScrolled(wxCommandEvent&) {
 void MyFrame::increaseSpeed() {
 	//Increase speed based on total time key was pressed for and current throttle value
 	currentSpeed = currentSpeed + (bikeAcceleration * (digitalThrottleValue / 1024.0)*totalKeyPressedTime);
-	currentSpeed = std::min(currentSpeed, 25.0);
+	currentSpeed = std::min(currentSpeed, (25.0/1024.0)*digitalThrottleValue);//Sets the Highest speed limit based on throttle postion
 	//Display Current speed value
 	speedometerUpdate(currentSpeed);
 	tmpSpeed = currentSpeed;
@@ -387,7 +406,7 @@ void MyFrame::increaseSpeed() {
 void MyFrame::decreaseSpeed() {
 	//Decrease speed based on total time key was pressed for and current throttle value
 	currentSpeed = currentSpeed - (bikeAcceleration * (1 - (digitalThrottleValue / 1024.0))*totalKeyPressedTime);
-	currentSpeed = std::max(currentSpeed, 0.0);
+	currentSpeed = std::max(currentSpeed, (25.0 / 1024.0)*digitalThrottleValue);//Sets the lowest speed limit based on throttle postion
 	//Display Current speed value
 	speedometerUpdate(currentSpeed);
 	tmpSpeed = currentSpeed;
@@ -443,13 +462,20 @@ void MyFrame::setLidarLevel(int val)
 
 void MyFrame::batteryPercentageCharged(wxCommandEvent& ) {
     //wxLogMessage(wxString::Format(wxT("%d%"), timeElapsed_hours->GetValue()));
-    int totaltime= (timeElapsed_hours->GetValue()*60)+timeElapsed_mins->GetValue();
-    double tmp= (double(totaltime)/180.0)*100.0;
-    batteryPercentage= 100-tmp;
-    setBatteryPercentage();
+	if (!isLocked) {
+		
+		setBatteryPercentage();
+		raspberryPiConsole("Battery Percentage:" + std::to_string(batteryPercentage) + "%");
+		raspberryPiConsole("Battery Voltage:" + std::to_string(batteryVoltage) + "V");
+	}
     
 }
 void MyFrame::setBatteryPercentage(){
+	//Calculate the Battery Percnetage based on time Elapsed
+	int totaltime = (timeElapsed_hours->GetValue() * 60) + timeElapsed_mins->GetValue();
+	double tmp = (double(totaltime) / 180.0)*100.0;
+	batteryPercentage = 100 - tmp;
+
 	if (batteryPercentage > 66) {
 		batteryGauge->SetActiveBarColour(*wxGREEN);
 	}
@@ -467,8 +493,7 @@ void MyFrame::setBatteryPercentage(){
     batteryPercentageText->SetLabel(wxString::Format(wxT("Battery level: %d%%"), batteryPercentage));
     batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));
     batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));
-    raspberryPiConsole("Battery Percentage:"+std::to_string(batteryPercentage)+"%");
-    raspberryPiConsole("Battery Voltage:" +std::to_string(batteryVoltage)+"V");
+ 
     if (batteryVoltage<31 && batteryVoltage>30.4){
         raspberryPiConsole("DC-DC Converter will" );
         raspberryPiConsole("shutdown soon" );
@@ -483,6 +508,17 @@ void MyFrame::IdleEv(wxIdleEvent&) {
 	ntime2 = clock();
 	if (ntime2 - ntime1 >= 500) { //Updates every 0.5 seconds 
 		if (brk_lvl > 0) speedBrake();
+		if (doSimulate) {
+			int curr_min = timeElapsed_mins->GetValue();
+			int curr_hour = timeElapsed_hours->GetValue();
+			timeElapsed_mins->SetValue((curr_min + 1) % 60);
+			if (timeElapsed_mins->GetValue() == 0) timeElapsed_hours->SetValue(curr_hour + 1);
+			setBatteryPercentage();
+			if (batteryPercentage ==0 ) {
+				doSimulate = false;
+				keyLock();
+			}
+		}
 		ntime1 = ntime2;
 	}
 }
