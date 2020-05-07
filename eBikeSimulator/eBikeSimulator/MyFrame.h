@@ -37,7 +37,7 @@ public:							// Global variables, other function delcarations, etc
 	wxStaticText* timeElapsedHours;
 	wxStaticText* timeElapsedMins;
     wxStaticText* lidarTxt;
-	wxButton* setTimeElapsedButton, *simulateButton;
+	wxButton* setTimeElapsedButton, *simulateButton, *pedalButton;
 	wxAnimationCtrl* brakingAnim;
 	wxAnimationCtrl* bike_wheelAnim;
 	
@@ -58,8 +58,10 @@ public:							// Global variables, other function delcarations, etc
     void controlBrake(int _throttle, int _break);
     void SetBrakePicture(bool);
 	void OnThrottleSliderScrolled(wxCommandEvent&);
-	void increaseSpeed();
-	void decreaseSpeed();
+	void OnThrottleSliderReleased(wxCommandEvent&);
+
+	void increaseSpeed(double totalTime);
+	void decreaseSpeed(double totalTime);
     void keyLockSetup();
     void keyLock();
     void keyUnlock();
@@ -75,11 +77,13 @@ public:							// Global variables, other function delcarations, etc
 	void IdleEv(wxIdleEvent&);
 	void speedBrake();
 	void simulateButtonClicked(wxCommandEvent&);
-
+	void setWheelAnimationSpeed(double currentSpeed);
+	void pedalButtonClicked(wxCommandEvent&);
+	void ButtonSetup();
 private:     
 	int brakeLevel;
 	double digitalThrottleValue = 0.0; //Digital Throttle Value from 0 to 1024
-	double currentSpeed,tmpSpeed = 0.0; //current speed and temporary speed 
+	double currentSpeed = 0.0; //current speed and temporary speed 
 	wxStaticText* speedText;//Temporary Speed Display
 	bool upKeyPressed = false;
 	clock_t keyPressedTime, keyReleasedTime;//to keep track how long Up/Down key was pressed
