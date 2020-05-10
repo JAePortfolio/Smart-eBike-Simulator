@@ -16,23 +16,14 @@
 #include <string>
 #include <algorithm>
 #include <wx/gauge.h>
-#include "kwic/LinearMeter.cpp"
-#include "kwic/AngularMeter.cpp"
-//#include "/Users/ionutrotariu/Documents/wxWidgets-3.1.3/include/kwic/LinearMeter.cpp"
-//#include "/Users/ionutrotariu/Documents/wxWidgets-3.1.3/include/kwic/AngularMeter.cpp"
+#include "kwic/LinearMeter.cpp"//Lidar,Battery Gauge
+#include "kwic/AngularMeter.cpp"//For Speedometer
 
-//#include "kwic/LCDWindow.h"
-/*
-#include "kwic/LCDWindow.cpp"
-"
-#include "kwic/LinearRegulator.cpp"
-*/
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_KEY_DOWN(MyFrame::OnKeyDown)
-    EVT_KEY_UP(MyFrame::OnKeyUp)
 wxEND_EVENT_TABLE()
-
+//Assigning Gauges and Meter Vairables
 wxStaticBitmap *bike_sideViewImage, *bike_rearViewImage, *frontWheel,*keyImage;
 wxStaticText *textForControls,*batteryPercentageText;
 wxListBox *raspberryPi;
@@ -40,32 +31,41 @@ kwxLinearMeter* batteryGauge;
 kwxLinearMeter* lidarGauge;
 kwxAngularMeter* speedometer;
 wxStaticText *speedometerText, *speedValueText;
+//Booleans to keep track which button/function is on
 bool headlightOn = false;
 bool isLocked = true;
 bool isBatteryShutdown = false;
-int brk_lvl = 0;
-int batteryPercentage=100;
-double batteryVoltage=42.0;
-double pedalPercantage = 1;
-int xWidth = 1366;
-int yWidth = 768;
 bool doSimulate = false;
 bool isPedalling = false;
 bool isincreaseSpeed = false;
 bool isdecreaseSpeed = false;
+
+//Initialization of variables
+int brk_lvl = 0;
+int batteryPercentage=100;
+int wetModeReduction = 0;//For Wet/Dry Mode
+double batteryVoltage = 42.0;
+double pedalPercantage = 1;
+
+//Window Width/Height
+int xWidth = 1366;
+int yWidth = 768;
+
 clock_t batTime1, batTime2;//Time for battery discharge rate calculation;
+
+//Initial Frame and Window Setup
 MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior Design", wxPoint(30,30), wxSize(xWidth, yWidth), wxDEFAULT_FRAME_STYLE & ~wxMAXIMIZE_BOX){
 	
 	//wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1364, 766), wxWANTS_CHARS);
 	this->SetBackgroundColour(wxColour(*wxWHITE));
     this->Bind(wxEVT_KEY_DOWN,&MyFrame::OnKeyDown,this);
-    this->Bind(wxEVT_KEY_UP,&MyFrame::OnKeyUp,this);
 	this->Bind(wxEVT_IDLE, &MyFrame::IdleEv, this);
 
 	//this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(MyFrame::OnKeyDown)); //Connects the keyboard event handler to this panel
     //this->Connect(wxEVT_KEY_UP, wxKeyEventHandler(MyFrame::OnKeyUp)); //Connects the keyboard event handler to this panel
 	SetFont(wxFont(18, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	
+
+	//Functions call to setup all the system on the window
 	initialImageDisplaySetup();
 	textForControlsSetup();
 	keyLockSetup();
@@ -81,13 +81,14 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "Smart eBike Simulator - Senior 
 }
 
 void MyFrame::initialImageDisplaySetup() {
+	//Initial Pictures(wxBitmap) and their locations(wxPoint), Size(wxSize) on the simulator display
 	bike_sideViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG), wxPoint(341, 191), wxSize(682, 383)); // "../ means parent directory, where the SLN file is
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 	brakingAnim = new wxAnimationCtrl(this, wxID_ANY, wxAnimation(wxT("../eBikeSimulator/gifs/bike_braking.gif")), wxPoint(895, 24), wxSize(426, 143));
 	bike_wheelAnim = new wxAnimationCtrl(this, wxID_ANY, wxAnimation(wxT("../eBikeSimulator/gifs/wheel_animation/wheel_still.gif")), wxPoint(43, 303), wxSize(192,192));
-	//bike_wheelAnim->Play(true);
 }
 void MyFrame::textForControlsSetup() {
+	//All the simulator User Control is displayed on the window
 	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 575), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
 	textForControls = new wxStaticText(this, wxID_ANY, "K-Unlock/Lock", wxPoint(1065, 600), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
@@ -104,15 +105,52 @@ void MyFrame::textForControlsSetup() {
 	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 }
 void MyFrame::keyLockSetup() {
+	//Initial  Key (Locked) image is displayed
+	keyImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/key_lock.png"), wxBITMAP_TYPE_PNG), wxPoint(43, 24), wxSize(124, 131));
 
-	keyImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/key_lock.png"), wxBITMAP_TYPE_PNG), wxPoint(43, 24), wxSize(124, 131)); // "../ means parent directory, where the SLN file is
+}
+void MyFrame::batteryGaugeSetup() {
+	//Sets Up the Battery Gauge, its postion, Size, initial percentage and colors,font
+	batteryGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(275, 72), wxSize(200, 50));
+	//text Setup
+	batteryPercentageText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Battery level: %d%%"), batteryPercentage),
+		wxPoint(285, 123), wxSize(200, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	batteryPercentageText->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
+	batteryGauge->SetValue(batteryPercentage);
+	batteryGauge->SetBorderColour(*wxBLACK);
 
 }
 void MyFrame::raspberryPiSetup() {
+	//Sets up the Raspberry Pi console 
 	raspberryPi = new wxListBox(this, wxID_ANY, wxPoint(594, 24), wxSize(255, 143));
 	raspberryPi->SetFont(wxFont(13, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	//Background color is set to black to look like a terminal
 	raspberryPi->SetBackgroundColour(*wxBLACK);
 	raspberryPi->SetForegroundColour(*wxWHITE);
+}
+
+void MyFrame::timeElapsedSetup() {
+	//Time Elapsed control is setup 
+	timeElapsedText = new wxStaticText(this, wxID_ANY, "Time Elapsed:", wxPoint(341, 650), wxDefaultSize, wxALIGN_TOP);
+	timeElapsedHours = new wxStaticText(this, wxID_ANY, "Hours", wxPoint(527, 700), wxDefaultSize, wxALIGN_TOP);
+	timeElapsedMins = new wxStaticText(this, wxID_ANY, "Mins", wxPoint(607, 700), wxDefaultSize, wxALIGN_TOP);
+	timeElapsed_mins = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(607, 650), wxSize(60, 40));
+	//Limits the Mins to 0 to 59
+	timeElapsed_mins->SetRange(0, 59);
+	timeElapsed_hours = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(527, 650), wxSize(60, 40));
+	//Limits the Hours to 0 to 3
+	timeElapsed_hours->SetRange(0, 3);
+}
+
+void MyFrame::lidarGaugeSetup()
+{
+	//Sets up Lidar Gauge, its position,size,text,range and colors
+	lidarGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(1065, 520), wxSize(255, 50));
+	lidarTxt = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("LiDar Distance: %dm"), 0), wxPoint(1065, 490), wxSize(200, 30), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	lidarTxt->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
+	lidarGauge->SetValue(0);
+	lidarGauge->SetRangeVal(0, 40);
+	lidarGauge->SetBorderColour(*wxBLACK);
 }
 void MyFrame::throttleTextSetup() {
 	//Throttle Slider Setup
@@ -120,58 +158,76 @@ void MyFrame::throttleTextSetup() {
 	throttleSlider->SetOwnBackgroundColour(*wxGREEN);
 	//Throttle Text and Voltage Value Text
 	wxStaticText* throttleText = new wxStaticText(this, wxID_ANY, "Throttle", wxPoint(950, 620), wxDefaultSize, wxALIGN_CENTER | wxBOLD);
-	//throttleText->SetOwnBackgroundColour(*wxRED);
 	throttleText->SetFont(wxFont(16, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL)); //Font,Size Setup
 	throttleSliderValue = new wxStaticText(this, wxID_ANY, "0.7V", wxPoint(965, 649), wxDefaultSize, wxALIGN_TOP);
 	throttleSliderValue->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	throttleSlider->Bind(wxEVT_SLIDER, &MyFrame::OnThrottleSliderScrolled, this);//function will be executed when slider is scrolled
 	throttleSlider->Bind(wxEVT_SCROLL_THUMBRELEASE, &MyFrame::OnThrottleSliderReleased, this);//function will be executed when slider is scrolled
-
 }
-void MyFrame::timeElapsedSetup() {
-	timeElapsedText = new wxStaticText(this, wxID_ANY, "Time Elapsed:", wxPoint(341, 650), wxDefaultSize, wxALIGN_TOP);
-	timeElapsedHours = new wxStaticText(this, wxID_ANY, "Hours", wxPoint(527, 700), wxDefaultSize, wxALIGN_TOP);
-	timeElapsedMins = new wxStaticText(this, wxID_ANY, "Mins", wxPoint(607, 700), wxDefaultSize, wxALIGN_TOP);
-	timeElapsed_mins = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(607, 650), wxSize(60, 40));
-	timeElapsed_mins->SetRange(0, 59);
-	timeElapsed_hours = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxPoint(527, 650), wxSize(60, 40));
-	timeElapsed_hours->SetRange(0, 3);
 
-
+void MyFrame::speedometerSetup() {
+	//Sets up Speedometer Gauge position,size,colors,text,range
+	speedometerText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed"), 0), wxPoint(79, 575));
+	speedometer = new kwxAngularMeter(this, wxID_ANY, wxPoint(25, 600), wxSize(180, 180));
 	
+	speedometer->SetRange(0, 25);
+	speedometer->SetNumSectors(3);
+	
+	speedometer->SetNeedleColour(*wxBLUE);
+	speedometer->SetSectorColor(0, *wxGREEN);
+	speedometer->SetSectorColor(1, *wxYELLOW);
+	speedometer->SetSectorColor(2, *wxRED);
+	speedometer->SetNumTick(5);
+	speedValueText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("%.1f"), currentSpeed), wxPoint(100, 700), wxSize(35, 100));
+	speedValueText->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 }
 void MyFrame::ButtonSetup() {
+	//All the buttons are initialized on the window
 	//Set Time Button
 	setTimeElapsedButton = new wxButton(this, wxID_ANY, "Set Time", wxPoint(341, 685), wxDefaultSize); // Functionality needs to be connected to this button 
 	setTimeElapsedButton->Bind(wxEVT_BUTTON, &MyFrame::batteryPercentageCharged, this);//Binding for setTime Button
-	//Pedal Button
+	
 	pedalButton = new wxButton(this, wxID_ANY, "Pedal", wxPoint(520, 610), wxSize(180, 35));//button for pedal
 	pedalButton->SetOwnBackgroundColour(*wxGREEN);
 	pedalButton->Bind(wxEVT_BUTTON, &MyFrame::pedalButtonClicked, this);
-	//Simulate Button
+	
 	simulateButton = new wxButton(this, wxID_ANY, "Simulate", wxPoint(341, 610), wxDefaultSize); // button for simulate 
 	simulateButton->Bind(wxEVT_BUTTON, &MyFrame::simulateButtonClicked, this);
+	
+	wetDryModeBtn = new wxButton(this, wxID_ANY, "Dry", wxPoint(740, 610), wxSize(180, 35)); // button for Wet/Dry Mode
+	wetDryModeBtn->Bind(wxEVT_BUTTON, &MyFrame::wetDryModeClicked, this);
+
 }
+
 void MyFrame::pedalButtonClicked(wxCommandEvent&) {
+	//When Pedal button is clicked
+	//Checks key is unlocked and battery is greater than 30%
 	if (!isLocked && batteryPercentage >= 30) {
 		raspberryPiConsole("Can't Pedal Right Now");
 	}
+	//If it is less than 30% and not Pedalling
 	else if (!isLocked && !isPedalling) {
-		isPedalling = true;
+		isPedalling = true;//Set pedaling to true
 		pedalButton->SetLabel("Stop Pedalling");
 		pedalButton->SetOwnBackgroundColour(*wxRED);
-		pedalPercantage = 0.6;
+		pedalPercantage = 0.6;//Set pedaling percentage to 40% causing motor uses to 60% of original
 
 	}
 	else if (!isLocked && isPedalling) {
+		//If it is already pedalling 
 		isPedalling = false;
 		pedalButton->SetLabel("Pedal");
 		pedalButton->SetOwnBackgroundColour(*wxGREEN);
-		pedalPercantage = 1;
+		pedalPercantage = 1;//Set 1 to obtain original motor usage
 
 	}
 }
 void MyFrame::simulateButtonClicked(wxCommandEvent&) {
+	//Function to start simulate
+	//Checks if Key is unlocked
+	//Setting doSimulate to True would start
+	//The simulation
+
 	if (!isLocked && !doSimulate) {
 		doSimulate = true;
 		simulateButton->SetLabel("Stop");
@@ -181,62 +237,59 @@ void MyFrame::simulateButtonClicked(wxCommandEvent&) {
 		simulateButton->SetLabel("Simulate");
 	}
 }
-void MyFrame::batteryGaugeSetup() {
-	batteryGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(275, 72), wxSize(200, 50));
-	batteryPercentageText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Battery level: %d%%"), batteryPercentage), wxPoint(285, 123), wxSize(200, 50), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	batteryPercentageText->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
-	batteryGauge->SetValue(batteryPercentage);
-	batteryGauge->SetBorderColour(*wxBLACK);
 
-}
-void MyFrame::lidarGaugeSetup()
-{
-    lidarGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(1065, 520), wxSize(255, 50));
-    lidarTxt = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("LiDar Distance: %dm"), 0), wxPoint(1065, 490), wxSize(200, 30), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-    lidarTxt->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
-    lidarGauge->SetValue(0);
-	lidarGauge->SetRangeVal(0, 40);
-	lidarGauge->SetBorderColour(*wxBLACK);
-}
+void MyFrame::wetDryModeClicked(wxCommandEvent&) {
 
-//Speedometer Setup
-void MyFrame::speedometerSetup() {
-	speedometerText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed"), 0), wxPoint(79, 575));
+	//When key unlocked and wet mode is off
+	if (!isLocked && wetModeReduction == 0) {
+		raspberryPiConsole("Wet Mode Activated");
+		wetModeReduction = 1;
+		wetDryModeBtn->SetLabel("Wet");
+		digitalThrottleValue = digitalThrottleValue - (wetModeReduction*(int(digitalThrottleValue*.7)));
+		isdecreaseSpeed = false;
 
-	speedometer = new kwxAngularMeter(this, wxID_ANY, wxPoint(25, 600), wxSize(180, 180));
-	speedometer->SetRange(0, 25);
-	speedometer->SetNumSectors(3);
-	speedometer->SetNeedleColour(*wxBLUE);
-	speedometer->SetSectorColor(0, *wxGREEN);
-	speedometer->SetSectorColor(1, *wxYELLOW);
-	speedometer->SetSectorColor(2, *wxRED);
-	speedometer->SetNumTick(5);
-	speedValueText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("%.1f"), currentSpeed), wxPoint(100, 700), wxSize(35, 100));
-	speedValueText->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-
-}
-//Updates Speedometer Value
-void MyFrame::speedometerUpdate(double speed) {
-	speedometer->SetValue(speed);
-	speedValueText->SetLabelText(wxString::Format(wxT("%.1f"), speed));
-	speedValueText->Refresh();
-
+	}
+	//when key unlocked and  wet mode is on
+	else if (!isLocked && wetModeReduction == 1) {
+		raspberryPiConsole("Dry Mode Activated");
+		wetModeReduction = 0;
+		wetDryModeBtn->SetLabel("Dry");
+		int throttleSliderNumber = throttleSlider->GetValue();
+		double currValue = double(throttleSliderNumber) / 10 + 0.7;
+		double prevDigitalValue = digitalThrottleValue;
+		digitalThrottleValue = (((float)currValue - 0.7) / analogToDigitalRatio) + 1;
+		isincreaseSpeed = false;
+	}
 }
 
 void MyFrame::OnKeyDown(wxKeyEvent& event) {
-	wxChar key = event.GetKeyCode();
-	//LowerCase ASCII don't work once I have changed the EVENT for KEY DOWN and UP. SO Use uppercase ones
-	//wxLogMessage(wxString::Format(wxT("%d"),key));
-	if (key == 76 && !isLocked) { // ASCII code of l (lowercase L)
+	//Everytime a key is pressed this function is activated
+	wxChar key = event.GetKeyCode();//Gets the current Key
+	//Uses ASCII Upercase Letters
+	 if (key == 75) {//ASCI code for k (Lock/Unlock)
+		//if it is locked 
+		if (isLocked) {
+			keyUnlock();
+		}
+		//if it is already unlocked
+		else if (!isLocked) {
+			keyLock();
+		}
+	}
+	 //Checks if key is unlock
+	 //If it is unlocked then all function will works
+	else if (key == 76 && !isLocked) { // ASCII code of L 
 		leftTurnSignal();
 	}
-	else if (key == 82 && !isLocked) { // ASCII code of r
+
+	else if (key == 82 && !isLocked) { // ASCII code of R
 		rightTurnSignal();
 	}
 
-	else if (key == 72 && !isLocked) { // ASCII code of h
+	else if (key == 72 && !isLocked) { // ASCII code of H
 		headlightActivation();
 	}
+
 	else if (key == 90 && !isLocked) // Z for increasing brake level
 	{
         brk_lvl += 25;
@@ -247,38 +300,6 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
         brk_lvl -= 25;
 		controlBrake(0, brk_lvl);
 	}
-	/*
-	else if (key == 315 && !isLocked && brk_lvl==0) {//ASCII code for up Arrow
-		// won't work if braking
-		if (!upKeyPressed) {
-			upKeyPressed = true;
-			keyPressedTime = clock();
-		}
-		//Temporarily keep increasing speed until key is released
-		tmpSpeed = (bikeAcceleration* (digitalThrottleValue / 1024.0)*(1.0 / 31.0)) + tmpSpeed;
-		tmpSpeed = std::min(tmpSpeed, (25.0 / 1024.0)*digitalThrottleValue);//Sets the highest speed limit based on throttle postion
-		speedometerUpdate(tmpSpeed);
-	}/*
-	else if (key == 317 && !isLocked && brk_lvl == 0) {//ASCI code for down Arrow
-		// won't work if braking
-		if (!upKeyPressed) {
-			upKeyPressed = true;
-			keyPressedTime = clock();
-		}
-		//Temporarily keep decreasing speed until key is released
-		tmpSpeed = tmpSpeed - (bikeAcceleration* (1 - (digitalThrottleValue / 1024.0))*(1.0 / 31.0));
-		tmpSpeed = std::max(tmpSpeed, (25.0 / 1024.0)*digitalThrottleValue);//Sets the lowest speed limit based on throttle postion
-		speedometerUpdate(tmpSpeed);
-	}
-	*/
-	else if (key == 75) {//ASCI code for k
-		if (isLocked) {
-			keyUnlock();
-		}
-		else if (!isLocked) {
-			keyLock();
-		}
-	}
     // If c is pressed then take cursor's value and update lidar.
     //It's like Lidar is ON when c is pressed.
     else if (key == 67 && !isLocked) // ASCII code for c 
@@ -287,40 +308,16 @@ void MyFrame::OnKeyDown(wxKeyEvent& event) {
     }
 
 }
-void MyFrame::OnKeyUp(wxKeyEvent& event) {
-	/*
-	wxChar key = event.GetKeyCode();
-	if (key == 315 && !isLocked && brk_lvl == 0) {//ASCII code for up Arrow
-		// won't work if braking
-		keyReleasedTime = clock();
 
-		totalKeyPressedTime = double(keyReleasedTime - keyPressedTime) / 1000.0;
-		upKeyPressed = false;
-		increaseSpeed();
-	}
-	else if (key == 317 && !isLocked && brk_lvl == 0) {//ASCII code for Down Arrow
-		// won't work if braking
-
-		keyReleasedTime = clock();
-		totalKeyPressedTime = double(keyReleasedTime - keyPressedTime) / 1000.0;
-		upKeyPressed = false;
-		decreaseSpeed();
-	}
-	*/
-	// If c is pressed then take cursor's value and update lidar.
-	//It's like Lidar is ON when c is pressed.
-   /* else if (key == 67 && !isLocked) // ASCII code for c 
-	{
-		lidar();
-	}*/
-}
 
 void MyFrame::raspberryPiConsole(std::string outputMessage) {
+	//Takes the message input and displays to Pi console
 	raspberryPi->AppendString(outputMessage);
 	raspberryPi->SetSelection(raspberryPi->GetCount() - 1);
 }
 
 void MyFrame::leftTurnSignal() {
+	//Blinks the left turn signal light for 5 second
 	raspberryPiConsole("Turning Left");
 	int counter = 0;
 	while (counter < 10) { // 500ms*10 = 5 seconds
@@ -337,6 +334,7 @@ void MyFrame::leftTurnSignal() {
 }
 
 void MyFrame::rightTurnSignal() {
+	//Blinks the right turn signal light for 5 second
 	raspberryPiConsole("Turning Right");
 	int counter = 0;
 	while (counter < 10) { // 500ms*10 = 5 seconds
@@ -353,12 +351,14 @@ void MyFrame::rightTurnSignal() {
 }
 
 void MyFrame::headlightActivation() {
+	//Activates headlight if it is off
 	if (headlightOn == false) {
 		raspberryPiConsole("Headlight ON");
 		headlightOn = !headlightOn;
 		bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint_headlight.png"), wxBITMAP_TYPE_PNG));
 		Update();
 	}
+	//Deactivates headlight if it is on
 	else if (headlightOn == true) {
 		raspberryPiConsole("Headlight OFF");
 		headlightOn = !headlightOn;
@@ -411,17 +411,20 @@ void MyFrame::SetBrakePicture(bool _bstatus)
 }
 
 void MyFrame::keyLock() {
+	//Locks the System and Puts back everything to initial setup
 	isLocked = true;//Set lock mode
+	//Show Locked Image
 	keyImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/key_lock.png"), wxBITMAP_TYPE_PNG));
 	raspberryPiConsole("Raspberry Pi is Shutting Down");
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Wait 2 second
 	raspberryPi->Clear();//Clear Raspberry Pi messages
+
 	//Default Images/
 	bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG));
 	bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG));
 	//Stop GIFS
-	brakingAnim->Stop();
-	bike_wheelAnim->Stop();
+	brakingAnim->Stop();//Braking animation stops
+	bike_wheelAnim->Stop();//Rotating Wheel stops moving
 
 	speedometerUpdate(0);// Turn off Speedometer
 	doSimulate = false;//turn Simulation OFF
@@ -429,21 +432,23 @@ void MyFrame::keyLock() {
 	isincreaseSpeed = false;//Turn off increasing
 	isdecreaseSpeed = false;//or decreasing of speed
 	digitalThrottleValue = 0.0;//Set throttle to 0
-	throttleSlider->SetValue(0);
+	throttleSlider->SetValue(0);//Slider to 0 postion
 	throttleSlider->SetOwnBackgroundColour(*wxGREEN);
 	throttleSliderValue->SetLabel(wxString("0,7V"));
-
-
 	
 }
 void MyFrame::keyUnlock() {
+	//Unlocks the Battery unit
+	//Display the Unlocked Key
 	keyImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/key_unlock.png"), wxBITMAP_TYPE_PNG));
 	isLocked = false;//Set unlock Mode
+	//Show Raspberry pi is on and Blynk(APP) initialized on Console
 	raspberryPiConsole("Raspberry Pi: ON");
 	raspberryPiConsole("Blynk Initialized");
-	throttleSlider->SetValue(0);//Set throttle to 0
-	digitalThrottleValue = 0.0;
 
+	//Set throttle to 0
+	throttleSlider->SetValue(0);
+	digitalThrottleValue = 0.0;
 
 }
 
@@ -454,6 +459,7 @@ void MyFrame::OnThrottleSliderScrolled(wxCommandEvent&) {
 		double currValue = double(throttleSliderNumber) / 10 + 0.7;
 		double prevDigitalValue = digitalThrottleValue;
 		digitalThrottleValue = (((float)currValue - 0.7) / analogToDigitalRatio) + 1;
+		digitalThrottleValue = digitalThrottleValue - (wetModeReduction*(int(digitalThrottleValue*.7)));
 		if (prevDigitalValue > digitalThrottleValue) {
 			isincreaseSpeed = false;
 			isdecreaseSpeed = true;
@@ -498,6 +504,13 @@ void MyFrame::decreaseSpeed(double totalTime) {
 	if (currentSpeed == minSpeed) isdecreaseSpeed = false;
 	speedometerUpdate(currentSpeed);
 	setWheelAnimationSpeed(currentSpeed);
+}
+//Updates Speedometer Value
+void MyFrame::speedometerUpdate(double speed) {
+	speedometer->SetValue(speed);
+	speedValueText->SetLabelText(wxString::Format(wxT("%.1f"), speed));
+	speedValueText->Refresh();
+
 }
 void MyFrame::setWheelAnimationSpeed(double currentSpeed) {
 	//Selects the animated GIFS based on the current Speed.
@@ -586,7 +599,9 @@ void MyFrame::setLidarLevel(int val)
 }
 
 void MyFrame::batteryPercentageCharged(wxCommandEvent& ) {
-    //wxLogMessage(wxString::Format(wxT("%d%"), timeElapsed_hours->GetValue()));
+	//When Set Time is Pressed this function is enabled
+	//Sets the Battery Percentage  
+	//Displays the Battery Voltage on Pi
 	if (!isLocked) {
 		
 		setBatteryPercentage();
@@ -597,10 +612,13 @@ void MyFrame::batteryPercentageCharged(wxCommandEvent& ) {
 }
 void MyFrame::setBatteryPercentage(){
 	//Calculate the Battery Percnetage based on time Elapsed
-	int totaltime = (timeElapsed_hours->GetValue() * 60) + timeElapsed_mins->GetValue();
-	double tmp = (double(totaltime) / 180.0)*100.0;
-	batteryPercentage = 100 - tmp;
+	//Obtain Total Time in minutes
+	int currentTotaltime = (timeElapsed_hours->GetValue() * 60) + timeElapsed_mins->GetValue();
+	//Get the percentage of current total time in relation with 180(max  time)
+	double dischargedValue = (double(currentTotaltime) / 180.0)*100.0;
+	batteryPercentage = 100 - dischargedValue;
 
+	//Setup background color based on percentage
 	if (batteryPercentage > 66) {
 		batteryGauge->SetActiveBarColour(*wxGREEN);
 	}
@@ -613,36 +631,45 @@ void MyFrame::setBatteryPercentage(){
 	else {
 		wxLogWarning(wxT("Improper Battery Percentage value"));
 	}
-
+	//Display the current Percentage of the battery on the Battery Gauge
     batteryGauge->SetValue(batteryPercentage);
     batteryPercentageText->SetLabel(wxString::Format(wxT("Battery level: %d%%"), batteryPercentage));
+
+	//Get the current Battery Voltage  Based on percentage 
+	//30.4V is minimum, 42V is the maximum. Range is 11.6=42-30.4
     batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));
     batteryVoltage=(30.4 + ((double(batteryPercentage)/100.0)*11.6));
- 
+
+	//Display Message when Battery Voltage is when battery almost reaching 
+	//the minimum voltage of the battery
     if (!isBatteryShutdown && batteryVoltage<31 && batteryVoltage>30.4){
         raspberryPiConsole("DC-DC Converter will" );
         raspberryPiConsole("shutdown soon" );
 		isBatteryShutdown = true;
     }
- 
-  else  if (batteryVoltage*(10.7/(10.7+255))<1.224){
+	//Calculate and compare the Voltage going to the LT3748 DC-DC converter
+  else  if (batteryVoltage*(10.7/(10.7+255))< minVoltageLT3748){
            raspberryPiConsole("RaspberryPi is OFF" );
+		   keyLock();//Lock the Battery
        }
 }
 
 void MyFrame::IdleEv(wxIdleEvent&) {
+	//This function will always occur when system is Idle
+	//Gets the Current times
 	ntime2 = clock();
 	batTime2 = clock();
-	if ( ntime2 - ntime1 >= 500) {//Updates every 0.5 seconds 
+	if ( ntime2 - ntime1 >= 500) {//Updates around every 0.5 seconds 
 		if (brk_lvl > 0) speedBrake();//If braking is applied Decrease Speed
-		if (isincreaseSpeed == true)increaseSpeed(0.5);//increase speed 
-		else  if (isdecreaseSpeed == true)decreaseSpeed(0.5);//decrease speed
-		ntime1 = ntime2;
+		if (isincreaseSpeed == true)increaseSpeed(ntime2-ntime1);//increase speed 
+		else  if (isdecreaseSpeed == true)decreaseSpeed(ntime2-ntime1);//decrease speed
+		ntime1 = ntime2;//Replace ntime1 with ntime2 
 	}
 	//Depending on throttle position the formula calculates how fast to discharge the battery
-	//Time elapsed will change 1 mins every 3 second when throttle is at 0
+	//Time elapsed will change 1 mins every 3 second when throttle is at min
 	//It will change 1 min every 0.5 second when throttle is at max
-	if (batTime2 - batTime1 >= (3000- (((2.5 / 35)*throttleSlider->GetValue()) * 1000)*pedalPercantage)) {
+	double timeReduction = (((2.5 / 1024.0)*digitalThrottleValue) * 1000)*pedalPercantage;
+	if (batTime2 - batTime1 >= (3000-timeReduction)) {
 		if (doSimulate) {
 			int curr_min = timeElapsed_mins->GetValue();
 			int curr_hour = timeElapsed_hours->GetValue();

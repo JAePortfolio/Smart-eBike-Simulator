@@ -37,13 +37,12 @@ public:							// Global variables, other function delcarations, etc
 	wxStaticText* timeElapsedHours;
 	wxStaticText* timeElapsedMins;
     wxStaticText* lidarTxt;
-	wxButton* setTimeElapsedButton, *simulateButton, *pedalButton;
+	wxButton* setTimeElapsedButton, *simulateButton, *pedalButton, *wetDryModeBtn;
 	wxAnimationCtrl* brakingAnim;
 	wxAnimationCtrl* bike_wheelAnim;
 	
 
 	void OnKeyDown(wxKeyEvent& event);
-	void OnKeyUp(wxKeyEvent& event);
 	wxDECLARE_EVENT_TABLE();
 
 	void textForControlsSetup();
@@ -79,6 +78,8 @@ public:							// Global variables, other function delcarations, etc
 	void simulateButtonClicked(wxCommandEvent&);
 	void setWheelAnimationSpeed(double currentSpeed);
 	void pedalButtonClicked(wxCommandEvent&);
+	void wetDryModeClicked(wxCommandEvent&);
+
 	void ButtonSetup();
 private:     
 	int brakeLevel;
@@ -92,6 +93,7 @@ private:
 	const double bikeAcceleration = 25.0 / 13.0; //Accelearion of bike at FUll throttle
 	const double analogToDigitalRatio = 3.50 / 1024.0;
 	bool headlightOn;
+	const double minVoltageLT3748 = 30.4*(10.7 / (10.7 + 255));
 
 };
 
