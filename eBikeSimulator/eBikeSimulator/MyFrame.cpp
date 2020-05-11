@@ -24,7 +24,7 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_KEY_DOWN(MyFrame::OnKeyDown)
 wxEND_EVENT_TABLE()
 //Assigning Gauges and Meter Vairables
-wxStaticBitmap *bike_sideViewImage, *bike_rearViewImage, *frontWheel,*keyImage;
+wxStaticBitmap *bike_sideViewImage, *bike_rearViewImage, *frontWheel,*keyImage,*lidarBox;
 wxStaticText *textForControls,*batteryPercentageText;
 wxListBox *raspberryPi;
 kwxLinearMeter* batteryGauge;
@@ -86,6 +86,8 @@ void MyFrame::initialImageDisplaySetup() {
 	bike_rearViewImage = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/bike_rearView.png"), wxBITMAP_TYPE_PNG), wxPoint(1065, 191), wxSize(255, 287));
 	brakingAnim = new wxAnimationCtrl(this, wxID_ANY, wxAnimation(wxT("../eBikeSimulator/gifs/bike_braking.gif")), wxPoint(895, 24), wxSize(426, 143));
 	bike_wheelAnim = new wxAnimationCtrl(this, wxID_ANY, wxAnimation(wxT("../eBikeSimulator/gifs/wheel_animation/wheel_still.gif")), wxPoint(43, 303), wxSize(192,192));
+	lidarBox = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("../eBikeSimulator/images/lidarBox.png"), wxBITMAP_TYPE_PNG), wxPoint(0, 191), wxSize(342, 105));
+
 }
 void MyFrame::textForControlsSetup() {
 	//All the simulator User Control is displayed on the window
@@ -245,7 +247,7 @@ void MyFrame::wetDryModeClicked(wxCommandEvent&) {
 		raspberryPiConsole("Wet Mode Activated");
 		wetModeReduction = 1;
 		wetDryModeBtn->SetLabel("Wet");
-		digitalThrottleValue = digitalThrottleValue - (wetModeReduction*(int(digitalThrottleValue*.7)));
+		digitalThrottleValue = digitalThrottleValue - (wetModeReduction*(int(digitalThrottleValue*.3)));
 		isdecreaseSpeed = false;
 
 	}
@@ -434,7 +436,7 @@ void MyFrame::keyLock() {
 	digitalThrottleValue = 0.0;//Set throttle to 0
 	throttleSlider->SetValue(0);//Slider to 0 postion
 	throttleSlider->SetOwnBackgroundColour(*wxGREEN);
-	throttleSliderValue->SetLabel(wxString("0,7V"));
+	throttleSliderValue->SetLabel(wxString("0.7V"));
 	
 }
 void MyFrame::keyUnlock() {
@@ -459,7 +461,7 @@ void MyFrame::OnThrottleSliderScrolled(wxCommandEvent&) {
 		double currValue = double(throttleSliderNumber) / 10 + 0.7;
 		double prevDigitalValue = digitalThrottleValue;
 		digitalThrottleValue = (((float)currValue - 0.7) / analogToDigitalRatio) + 1;
-		digitalThrottleValue = digitalThrottleValue - (wetModeReduction*(int(digitalThrottleValue*.7)));
+		digitalThrottleValue = digitalThrottleValue - (wetModeReduction*(int(digitalThrottleValue*.3)));
 		if (prevDigitalValue > digitalThrottleValue) {
 			isincreaseSpeed = false;
 			isdecreaseSpeed = true;
@@ -661,14 +663,16 @@ void MyFrame::IdleEv(wxIdleEvent&) {
 	batTime2 = clock();
 	if ( ntime2 - ntime1 >= 500) {//Updates around every 0.5 seconds 
 		if (brk_lvl > 0) speedBrake();//If braking is applied Decrease Speed
-		if (isincreaseSpeed == true)increaseSpeed(ntime2-ntime1);//increase speed 
-		else  if (isdecreaseSpeed == true)decreaseSpeed(ntime2-ntime1);//decrease speed
+		if (isincreaseSpeed == true)increaseSpeed(0.5);//increase speed 
+		else  if (isdecreaseSpeed == true)decreaseSpeed(0.5);//decrease speed
+		//if(!isLocked) lidar();
 		ntime1 = ntime2;//Replace ntime1 with ntime2 
 	}
 	//Depending on throttle position the formula calculates how fast to discharge the battery
 	//Time elapsed will change 1 mins every 3 second when throttle is at min
 	//It will change 1 min every 0.5 second when throttle is at max
-	double timeReduction = (((2.5 / 1024.0)*digitalThrottleValue) * 1000)*pedalPercantage;
+	double timeReduction = 0;
+	if(brk_lvl==0)timeReduction=(((2.5 / 1024.0)*digitalThrottleValue) * 1000)*pedalPercantage;
 	if (batTime2 - batTime1 >= (3000-timeReduction)) {
 		if (doSimulate) {
 			int curr_min = timeElapsed_mins->GetValue();
