@@ -258,7 +258,6 @@ void MyFrame::wetDryModeClicked(wxCommandEvent&) {
 		wetDryModeBtn->SetLabel("Dry");
 		int throttleSliderNumber = throttleSlider->GetValue();
 		double currValue = double(throttleSliderNumber) / 10 + 0.7;
-		double prevDigitalValue = digitalThrottleValue;
 		digitalThrottleValue = (((float)currValue - 0.7) / analogToDigitalRatio) + 1;
 		isincreaseSpeed = false;
 	}
@@ -396,7 +395,8 @@ void MyFrame::SetBrakePicture(bool _bstatus)
 	if (_bstatus)
 	{
 		// optional blueprint image with light in the back on
-		bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprintbrake.png"), wxBITMAP_TYPE_PNG));
+		if(!headlightOn) bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprintbrake.png"), wxBITMAP_TYPE_PNG));
+		if(headlightOn)bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/headlightandbrake.png"), wxBITMAP_TYPE_PNG));
 		bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brakeon.png"), wxBITMAP_TYPE_PNG));
 		Update();
 		brakingAnim->Play(true);
