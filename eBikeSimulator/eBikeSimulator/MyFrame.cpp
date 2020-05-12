@@ -164,13 +164,13 @@ void MyFrame::throttleTextSetup() {
 	throttleSliderValue = new wxStaticText(this, wxID_ANY, "0.7V", wxPoint(965, 649), wxDefaultSize, wxALIGN_TOP);
 	throttleSliderValue->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 	throttleSlider->Bind(wxEVT_SLIDER, &MyFrame::OnThrottleSliderScrolled, this);//function will be executed when slider is scrolled
-	throttleSlider->Bind(wxEVT_SCROLL_THUMBRELEASE, &MyFrame::OnThrottleSliderReleased, this);//function will be executed when slider is scrolled
+	throttleSlider->Bind(wxEVT_SCROLL_THUMBRELEASE, &MyFrame::OnThrottleSliderReleased, this);//function will be executed when slider is released
 }
 
 void MyFrame::speedometerSetup() {
 	//Sets up Speedometer Gauge position,size,colors,text,range
-	speedometerText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed"), 0), wxPoint(79, 575));
-	speedometer = new kwxAngularMeter(this, wxID_ANY, wxPoint(25, 600), wxSize(180, 180));
+	speedometerText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("Speed"), 0), wxPoint(129, 575));
+	speedometer = new kwxAngularMeter(this, wxID_ANY, wxPoint(75, 600), wxSize(180, 180));
 	
 	speedometer->SetRange(0, 25);
 	speedometer->SetNumSectors(3);
@@ -180,7 +180,7 @@ void MyFrame::speedometerSetup() {
 	speedometer->SetSectorColor(1, *wxYELLOW);
 	speedometer->SetSectorColor(2, *wxRED);
 	speedometer->SetNumTick(5);
-	speedValueText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("%.1f"), currentSpeed), wxPoint(100, 700), wxSize(35, 100));
+	speedValueText = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("%.1f"), currentSpeed), wxPoint(150, 700), wxSize(35, 100));
 	speedValueText->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 }
 void MyFrame::ButtonSetup() {
@@ -203,8 +203,8 @@ void MyFrame::ButtonSetup() {
 
 void MyFrame::pedalButtonClicked(wxCommandEvent&) {
 	//When Pedal button is clicked
-	//Checks key is unlocked and battery is greater than 30%
-	if (!isLocked && batteryPercentage >= 30) {
+	//Checks key is unlocked and battery is greater than 60%
+	if (!isLocked && batteryPercentage >= 60) {
 		raspberryPiConsole("Can't Pedal Right Now");
 	}
 	//If it is less than 30% and not Pedalling
@@ -457,21 +457,21 @@ void MyFrame::keyUnlock() {
 void MyFrame::OnThrottleSliderScrolled(wxCommandEvent&) {
 	// Each time Slider is scrolled display the current voltage and change digital throttle value
 	if (!isLocked) {
-		int throttleSliderNumber = throttleSlider->GetValue();
-		double currValue = double(throttleSliderNumber) / 10 + 0.7;
+		int throttleSliderNumber = throttleSlider->GetValue();//Get Slider postion
+		//Throttle Voltage goes from 0.7 to 4.2 (Range=3.5), Total Slider postion=10
+		//Divide the current Slider Position by 10 (35/3.5) and add 0.7 since slider starts from 0
+		double currValue = double(throttleSliderNumber) / 10 + 0.7;//Set current Voltage
 		double prevDigitalValue = digitalThrottleValue;
 		digitalThrottleValue = (((float)currValue - 0.7) / analogToDigitalRatio) + 1;
+		//Subtract 30% if wetMode is on
 		digitalThrottleValue = digitalThrottleValue - (wetModeReduction*(int(digitalThrottleValue*.3)));
 		if (prevDigitalValue > digitalThrottleValue) {
 			isincreaseSpeed = false;
 			isdecreaseSpeed = true;
-
 		}
 		if (prevDigitalValue < digitalThrottleValue) {
 			isincreaseSpeed = true;
 			isdecreaseSpeed = false;
-
-
 		}
 		throttleSliderValue->SetLabel(wxString::Format(wxT("%.1fV"), currValue));
 		if (throttleSliderNumber < 12) throttleSlider->SetOwnBackgroundColour(*wxGREEN);
