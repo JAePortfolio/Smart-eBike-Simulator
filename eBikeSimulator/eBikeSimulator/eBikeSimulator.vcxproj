@@ -27,6 +27,12 @@
     <ClCompile Include="MyApp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="images\bike frame.PNG" />
+    <Image Include="images\bike_brake.png" />
+    <Image Include="images\bike_brakeon.png" />
+    <Image Include="images\bike_rearView.png" />
+    <Image Include="images\bike_rearView_left.png" />
+    <Image Include="images\bike_rearView_right.png" />
     <Image Include="images\bike_sideView.PNG">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -34,7 +40,12 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
     </Image>
     <Image Include="images\blueprint.png" />
+    <Image Include="images\blueprintbrake.png" />
     <Image Include="images\blueprint_headLight.png" />
+    <Image Include="images\headlightandbrake.png" />
+    <Image Include="images\key_lock.png" />
+    <Image Include="images\key_unlock.png" />
+    <Image Include="images\lidarBox.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

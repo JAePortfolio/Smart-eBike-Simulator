@@ -40,5 +40,38 @@
     <Image Include="images\blueprint_headLight.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="images\bike frame.PNG">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\bike_brake.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\bike_brakeon.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\bike_rearView.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\bike_rearView_left.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\bike_rearView_right.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\blueprintbrake.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\headlightandbrake.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\key_lock.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\key_unlock.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\lidarBox.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
