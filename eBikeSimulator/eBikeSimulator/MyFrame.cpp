@@ -93,18 +93,20 @@ void MyFrame::textForControlsSetup() {
 	//All the simulator User Control is displayed on the window
 	textForControls = new wxStaticText(this, wxID_ANY, "Control Bindings", wxPoint(1065, 575), wxSize(299, 192), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	textForControls->SetFont(wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
-	textForControls = new wxStaticText(this, wxID_ANY, "K-Unlock/Lock", wxPoint(1065, 600), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "L-Signal Left", wxPoint(1065, 620), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "R-Signal Right", wxPoint(1065, 640), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "H-Headlight", wxPoint(1065, 660), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "Z-BrakeIncr + 25%", wxPoint(1065, 680), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-	textForControls = new wxStaticText(this, wxID_ANY, "X-BrakeDecr - 25%", wxPoint(1065, 700), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
-	textForControls->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "K - Unlock/Lock", wxPoint(1065, 600), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(13, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "L - Signal Left", wxPoint(1065, 620), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(13, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "R - Signal Right", wxPoint(1065, 640), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(13, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "H - Headlight", wxPoint(1065, 660), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(13, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "Z - BrakeIncr + 25%", wxPoint(1200, 600), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(13, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "X - BrakeDecr - 25%", wxPoint(1195, 620), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(13, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	textForControls = new wxStaticText(this, wxID_ANY, "C - LiDAR", wxPoint(1195, 640), wxSize(299, 175), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	textForControls->SetFont(wxFont(13, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 }
 void MyFrame::keyLockSetup() {
 	//Initial  Key (Locked) image is displayed
@@ -150,6 +152,8 @@ void MyFrame::lidarGaugeSetup()
 	lidarGauge = new kwxLinearMeter(this, wxID_ANY, wxPoint(1065, 520), wxSize(255, 50));
 	lidarTxt = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("LiDar Distance: %dm"), 0), wxPoint(1065, 490), wxSize(200, 30), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
 	lidarTxt->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
+	lidarBoxTxt = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("LiDAR Area Box"), 0), wxPoint(0, 170), wxSize(200, 20), wxALIGN_LEFT | wxST_NO_AUTORESIZE);
+	lidarBoxTxt->SetFont(wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
 	lidarGauge->SetValue(0);
 	lidarGauge->SetRangeVal(0, 40);
 	lidarGauge->SetBorderColour(*wxBLACK);
@@ -403,7 +407,8 @@ void MyFrame::SetBrakePicture(bool _bstatus)
 	}
 	else
 	{
-		bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG));
+		if(!headlightOn) bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint.png"), wxBITMAP_TYPE_PNG));
+		if(headlightOn) bike_sideViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/blueprint_headlight.png"), wxBITMAP_TYPE_PNG));
 		bike_rearViewImage->SetBitmap(wxBitmap(wxT("../eBikeSimulator/images/bike_brake.png"), wxBITMAP_TYPE_PNG));
 		Update();
 		brakingAnim->Play(false);

@@ -37,6 +37,7 @@ public:							// Global variables, other function delcarations, etc
 	wxStaticText* timeElapsedHours;
 	wxStaticText* timeElapsedMins;
     wxStaticText* lidarTxt;
+	wxStaticText* lidarBoxTxt;
 	wxButton* setTimeElapsedButton, *simulateButton, *pedalButton, *wetDryModeBtn;
 	wxAnimationCtrl* brakingAnim;
 	wxAnimationCtrl* bike_wheelAnim;
